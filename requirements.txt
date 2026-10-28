@@ -1,0 +1,25 @@
+# Core Numerical & Data Processing
+numpy>=1.22.0
+pandas>=2.0.0
+scipy>=1.8.0
+
+# Traditional Machine Learning & CRF Sequence Labeling
+scikit-learn>=1.2.0
+sklearn-crfsuite>=0.3.6
+python-crfsuite>=0.9.7
+
+# Computer Vision & Image Preprocessing
+opencv-python>=4.7.0
+Pillow>=9.0.0
+
+# Document Parsing & OCR
+PyMuPDF>=1.22.0
+pytesseract>=0.3.10
+
+# Utilities & Date Parsing
+python-dateutil>=2.8.2
+reportlab>=4.0.0
+
+# Web Application & Automated Testing
+streamlit>=1.30.0
+pytest>=7.4.0

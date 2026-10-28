@@ -1,0 +1,50 @@
+{
+  "metadata": {
+    "filename": "INV_0025.pdf",
+    "document_type": "digital_pdf",
+    "page_count": 1,
+    "token_count": 69,
+    "ocr_engine": "native_pdf",
+    "extraction_method": "hybrid_crf_rules",
+    "processing_time_ms": 12.97,
+    "timestamp": "2026-10-28T09:28:00Z"
+  },
+  "fields": {
+    "invoice_number": "INV-2024-6975",
+    "invoice_date": "2024-01-26",
+    "supplier_name": "Vertex Global Solutions Ltd",
+    "buyer_name": "OmniCorp Infrastructure Ltd",
+    "purchase_order_number": "PO-99-466",
+    "currency": "INR",
+    "subtotal": 5254.08,
+    "tax_amount": 945.73,
+    "total_amount": 6199.81,
+    "tax_id": "27AABCU9603R1ZM",
+    "tax_id_type": "GSTIN"
+  },
+  "line_items": [
+    {
+      "description": "Technical Support & Maintenance",
+      "quantity": 1.0,
+      "unit_price": 301.83,
+      "tax_rate": null,
+      "tax_amount": 54.33,
+      "total": 356.16
+    },
+    {
+      "description": "Network Firewall Appliance",
+      "quantity": 5.0,
+      "unit_price": 990.45,
+      "tax_rate": null,
+      "tax_amount": 891.4,
+      "total": 5843.65
+    }
+  ],
+  "validation": {
+    "is_valid": true,
+    "errors": [],
+    "warnings": [
+      "Line items sum (6199.81) deviates from extracted subtotal (5254.08)."
+    ]
+  }
+}

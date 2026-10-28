@@ -1,0 +1,66 @@
+{
+  "metadata": {
+    "filename": "INV_0001.pdf",
+    "document_type": "digital_pdf",
+    "page_count": 1,
+    "token_count": 86,
+    "ocr_engine": "native_pdf",
+    "extraction_method": "crf_ml",
+    "processing_time_ms": 9.94,
+    "timestamp": "2026-10-28T09:27:52Z"
+  },
+  "fields": {
+    "invoice_number": "INV-2024-5507",
+    "invoice_date": "2024-04-08",
+    "supplier_name": "Nexus Cloud Technologies Inc",
+    "buyer_name": "Acme Retail Enterprises",
+    "purchase_order_number": "PO-2024-242",
+    "currency": "USD",
+    "subtotal": 3486.35,
+    "tax_amount": 627.54,
+    "total_amount": 4113.89,
+    "tax_id": "07AAACN1234F1Z5",
+    "tax_id_type": "GSTIN"
+  },
+  "line_items": [
+    {
+      "description": "Managed Database Hosting",
+      "quantity": 1.0,
+      "unit_price": 269.29,
+      "tax_rate": null,
+      "tax_amount": 48.47,
+      "total": 317.76
+    },
+    {
+      "description": "Network Firewall Appliance",
+      "quantity": 1.0,
+      "unit_price": 772.6,
+      "tax_rate": null,
+      "tax_amount": 139.07,
+      "total": 911.67
+    },
+    {
+      "description": "Data Backup & Recovery Storage",
+      "quantity": 2.0,
+      "unit_price": 87.28,
+      "tax_rate": null,
+      "tax_amount": 31.42,
+      "total": 205.98
+    },
+    {
+      "description": "Software Architecture Consulting",
+      "quantity": 5.0,
+      "unit_price": 453.98,
+      "tax_rate": null,
+      "tax_amount": 408.58,
+      "total": 2678.48
+    }
+  ],
+  "validation": {
+    "is_valid": true,
+    "errors": [],
+    "warnings": [
+      "Line items sum (4113.89) deviates from extracted subtotal (3486.35)."
+    ]
+  }
+}

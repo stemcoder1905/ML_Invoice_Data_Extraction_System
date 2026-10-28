@@ -1,0 +1,66 @@
+{
+  "metadata": {
+    "filename": "INV_0008.pdf",
+    "document_type": "digital_pdf",
+    "page_count": 1,
+    "token_count": 88,
+    "ocr_engine": "native_pdf",
+    "extraction_method": "crf_ml",
+    "processing_time_ms": 9.94,
+    "timestamp": "2026-10-28T09:27:54Z"
+  },
+  "fields": {
+    "invoice_number": "INV-2024-7544",
+    "invoice_date": "2024-04-12",
+    "supplier_name": "Quantum Precision Hardware Pvt",
+    "buyer_name": "Global Trade Logistics Inc",
+    "purchase_order_number": "GTL-241",
+    "currency": "INR",
+    "subtotal": 4874.52,
+    "tax_amount": 877.42,
+    "total_amount": 5751.94,
+    "tax_id": "19AABCQ7777N1Z4",
+    "tax_id_type": "GSTIN"
+  },
+  "line_items": [
+    {
+      "description": "API Integration Gateway Service",
+      "quantity": 2.0,
+      "unit_price": 195.88,
+      "tax_rate": null,
+      "tax_amount": 70.52,
+      "total": 462.28
+    },
+    {
+      "description": "Cloud Server Compute (vCPU/RAM)",
+      "quantity": 4.0,
+      "unit_price": 129.47,
+      "tax_rate": null,
+      "tax_amount": 93.22,
+      "total": 611.1
+    },
+    {
+      "description": "Data Backup & Recovery Storage",
+      "quantity": 4.0,
+      "unit_price": 91.3,
+      "tax_rate": null,
+      "tax_amount": 65.74,
+      "total": 430.94
+    },
+    {
+      "description": "Network Firewall Appliance",
+      "quantity": 4.0,
+      "unit_price": 899.92,
+      "tax_rate": null,
+      "tax_amount": 647.94,
+      "total": 4247.62
+    }
+  ],
+  "validation": {
+    "is_valid": true,
+    "errors": [],
+    "warnings": [
+      "Line items sum (5751.94) deviates from extracted subtotal (4874.52)."
+    ]
+  }
+}

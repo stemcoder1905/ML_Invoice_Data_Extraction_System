@@ -1,0 +1,66 @@
+{
+  "metadata": {
+    "filename": "INV_0024.pdf",
+    "document_type": "digital_pdf",
+    "page_count": 1,
+    "token_count": 85,
+    "ocr_engine": "native_pdf",
+    "extraction_method": "hybrid_crf_rules",
+    "processing_time_ms": 11.27,
+    "timestamp": "2026-10-28T09:28:00Z"
+  },
+  "fields": {
+    "invoice_number": "INV-2024-5292",
+    "invoice_date": "2024-12-06",
+    "supplier_name": "Apex Industrial Supplies Corp",
+    "buyer_name": "Frontier BioScience Research",
+    "purchase_order_number": "BIO-PO-552",
+    "currency": "INR",
+    "subtotal": 3306.31,
+    "tax_amount": 595.13,
+    "total_amount": 3901.44,
+    "tax_id": "29AABCA5678E1Z8",
+    "tax_id_type": "GSTIN"
+  },
+  "line_items": [
+    {
+      "description": "Data Backup & Recovery Storage",
+      "quantity": 1.0,
+      "unit_price": 106.52,
+      "tax_rate": null,
+      "tax_amount": 19.17,
+      "total": 125.69
+    },
+    {
+      "description": "Software Architecture Consulting",
+      "quantity": 2.0,
+      "unit_price": 531.84,
+      "tax_rate": null,
+      "tax_amount": 191.46,
+      "total": 1255.14
+    },
+    {
+      "description": "Cloud Server Compute (vCPU/RAM)",
+      "quantity": 3.0,
+      "unit_price": 128.97,
+      "tax_rate": null,
+      "tax_amount": 69.64,
+      "total": 456.55
+    },
+    {
+      "description": "Network Firewall Appliance",
+      "quantity": 2.0,
+      "unit_price": 874.6,
+      "tax_rate": null,
+      "tax_amount": 314.86,
+      "total": 2064.06
+    }
+  ],
+  "validation": {
+    "is_valid": true,
+    "errors": [],
+    "warnings": [
+      "Line items sum (3901.44) deviates from extracted subtotal (3306.31)."
+    ]
+  }
+}

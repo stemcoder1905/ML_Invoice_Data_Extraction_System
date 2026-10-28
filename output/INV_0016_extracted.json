@@ -1,0 +1,66 @@
+{
+  "metadata": {
+    "filename": "INV_0016.pdf",
+    "document_type": "digital_pdf",
+    "page_count": 1,
+    "token_count": 84,
+    "ocr_engine": "native_pdf",
+    "extraction_method": "hybrid_crf_rules",
+    "processing_time_ms": 10.97,
+    "timestamp": "2026-10-28T09:27:57Z"
+  },
+  "fields": {
+    "invoice_number": "INV-2024-5093",
+    "invoice_date": "2024-02-28",
+    "supplier_name": "Pioneer Logistics & Freight Services",
+    "buyer_name": "Velocity FinTech Labs",
+    "purchase_order_number": "VFL-PO-553",
+    "currency": "INR",
+    "subtotal": 6418.13,
+    "tax_amount": 1155.27,
+    "total_amount": 7573.4,
+    "tax_id": "06AAACP4444L1Z1",
+    "tax_id_type": "GSTIN"
+  },
+  "line_items": [
+    {
+      "description": "Managed Database Hosting",
+      "quantity": 1.0,
+      "unit_price": 297.67,
+      "tax_rate": null,
+      "tax_amount": 53.58,
+      "total": 351.25
+    },
+    {
+      "description": "Cloud Server Compute (vCPU/RAM)",
+      "quantity": 2.0,
+      "unit_price": 113.99,
+      "tax_rate": null,
+      "tax_amount": 41.04,
+      "total": 269.02
+    },
+    {
+      "description": "Network Firewall Appliance",
+      "quantity": 4.0,
+      "unit_price": 887.75,
+      "tax_rate": null,
+      "tax_amount": 639.18,
+      "total": 4190.18
+    },
+    {
+      "description": "Software Architecture Consulting",
+      "quantity": 4.0,
+      "unit_price": 585.37,
+      "tax_rate": null,
+      "tax_amount": 421.47,
+      "total": 2762.95
+    }
+  ],
+  "validation": {
+    "is_valid": true,
+    "errors": [],
+    "warnings": [
+      "Line items sum (7573.40) deviates from extracted subtotal (6418.13)."
+    ]
+  }
+}

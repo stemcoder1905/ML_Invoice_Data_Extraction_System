@@ -1,0 +1,50 @@
+{
+  "metadata": {
+    "filename": "INV_0007.pdf",
+    "document_type": "digital_pdf",
+    "page_count": 1,
+    "token_count": 69,
+    "ocr_engine": "native_pdf",
+    "extraction_method": "crf_ml",
+    "processing_time_ms": 6.98,
+    "timestamp": "2026-10-28T09:27:54Z"
+  },
+  "fields": {
+    "invoice_number": "INV-2024-9180",
+    "invoice_date": "2024-11-13",
+    "supplier_name": "Zenith Software Systems GmbH",
+    "buyer_name": "BlueStar Enterprise Solutions",
+    "purchase_order_number": "ORD-88-569",
+    "currency": "EUR",
+    "subtotal": 2347.05,
+    "tax_amount": 422.47,
+    "total_amount": 2769.52,
+    "tax_id": "24AAACZ3333M1Z9",
+    "tax_id_type": "GSTIN"
+  },
+  "line_items": [
+    {
+      "description": "Software Architecture Consulting",
+      "quantity": 2.0,
+      "unit_price": 561.75,
+      "tax_rate": null,
+      "tax_amount": 202.23,
+      "total": 1325.73
+    },
+    {
+      "description": "Managed Database Hosting",
+      "quantity": 5.0,
+      "unit_price": 244.71,
+      "tax_rate": null,
+      "tax_amount": 220.24,
+      "total": 1443.79
+    }
+  ],
+  "validation": {
+    "is_valid": true,
+    "errors": [],
+    "warnings": [
+      "Line items sum (2769.52) deviates from extracted subtotal (2347.05)."
+    ]
+  }
+}

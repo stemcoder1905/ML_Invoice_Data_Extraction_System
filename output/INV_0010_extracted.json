@@ -1,0 +1,66 @@
+{
+  "metadata": {
+    "filename": "INV_0010.pdf",
+    "document_type": "digital_pdf",
+    "page_count": 1,
+    "token_count": 86,
+    "ocr_engine": "native_pdf",
+    "extraction_method": "hybrid_crf_rules",
+    "processing_time_ms": 9.29,
+    "timestamp": "2026-10-28T09:27:55Z"
+  },
+  "fields": {
+    "invoice_number": "INV-2024-2744",
+    "invoice_date": "2024-11-28",
+    "supplier_name": "Apex Industrial Supplies Corp",
+    "buyer_name": "Global Trade Logistics Inc",
+    "purchase_order_number": "GTL-405",
+    "currency": "INR",
+    "subtotal": 5576.32,
+    "tax_amount": 1003.73,
+    "total_amount": 6580.05,
+    "tax_id": "29AABCA5678E1Z8",
+    "tax_id_type": "GSTIN"
+  },
+  "line_items": [
+    {
+      "description": "Technical Support & Maintenance",
+      "quantity": 5.0,
+      "unit_price": 355.81,
+      "tax_rate": null,
+      "tax_amount": 320.23,
+      "total": 2099.28
+    },
+    {
+      "description": "Managed Database Hosting",
+      "quantity": 5.0,
+      "unit_price": 293.89,
+      "tax_rate": null,
+      "tax_amount": 264.5,
+      "total": 1733.95
+    },
+    {
+      "description": "Enterprise Security License",
+      "quantity": 5.0,
+      "unit_price": 448.76,
+      "tax_rate": null,
+      "tax_amount": 403.88,
+      "total": 2647.68
+    },
+    {
+      "description": "Data Backup & Recovery Storage",
+      "quantity": 1.0,
+      "unit_price": 84.02,
+      "tax_rate": null,
+      "tax_amount": 15.12,
+      "total": 99.14
+    }
+  ],
+  "validation": {
+    "is_valid": true,
+    "errors": [],
+    "warnings": [
+      "Line items sum (6580.05) deviates from extracted subtotal (5576.32)."
+    ]
+  }
+}

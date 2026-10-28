@@ -1,0 +1,19 @@
+{
+  "metadata": {
+    "filename": "INV_0005.png",
+    "document_type": "unknown",
+    "page_count": 0,
+    "error": "Tesseract OCR executable not detected or not found in system PATH. For scanned images or scanned PDFs, please install Tesseract OCR (e.g., 'winget install UB-Mannheim.TesseractOCR') or set TESSERACT_CMD.",
+    "extraction_method": "failed",
+    "timestamp": "2026-10-28T09:27:42Z"
+  },
+  "fields": {},
+  "line_items": [],
+  "validation": {
+    "is_valid": false,
+    "errors": [
+      "Processing failed: Tesseract OCR executable not detected or not found in system PATH. For scanned images or scanned PDFs, please install Tesseract OCR (e.g., 'winget install UB-Mannheim.TesseractOCR') or set TESSERACT_CMD."
+    ],
+    "warnings": []
+  }
+}

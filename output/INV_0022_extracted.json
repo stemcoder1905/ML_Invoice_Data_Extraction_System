@@ -1,0 +1,66 @@
+{
+  "metadata": {
+    "filename": "INV_0022.pdf",
+    "document_type": "digital_pdf",
+    "page_count": 1,
+    "token_count": 85,
+    "ocr_engine": "native_pdf",
+    "extraction_method": "hybrid_crf_rules",
+    "processing_time_ms": 8.95,
+    "timestamp": "2026-10-28T09:27:59Z"
+  },
+  "fields": {
+    "invoice_number": "INV-2024-9667",
+    "invoice_date": "2024-11-01",
+    "supplier_name": "Pioneer Logistics & Freight Services",
+    "buyer_name": "Global Trade Logistics Inc",
+    "purchase_order_number": "GTL-936",
+    "currency": "INR",
+    "subtotal": 3795.85,
+    "tax_amount": 683.26,
+    "total_amount": 4479.11,
+    "tax_id": "06AAACP4444L1Z1",
+    "tax_id_type": "GSTIN"
+  },
+  "line_items": [
+    {
+      "description": "Software Architecture Consulting",
+      "quantity": 3.0,
+      "unit_price": 467.31,
+      "tax_rate": null,
+      "tax_amount": 252.35,
+      "total": 1654.28
+    },
+    {
+      "description": "Network Firewall Appliance",
+      "quantity": 1.0,
+      "unit_price": 954.32,
+      "tax_rate": null,
+      "tax_amount": 171.78,
+      "total": 1126.1
+    },
+    {
+      "description": "Cloud Server Compute (vCPU/RAM)",
+      "quantity": 2.0,
+      "unit_price": 117.8,
+      "tax_rate": null,
+      "tax_amount": 42.41,
+      "total": 278.01
+    },
+    {
+      "description": "Managed Database Hosting",
+      "quantity": 5.0,
+      "unit_price": 240.8,
+      "tax_rate": null,
+      "tax_amount": 216.72,
+      "total": 1420.72
+    }
+  ],
+  "validation": {
+    "is_valid": true,
+    "errors": [],
+    "warnings": [
+      "Line items sum (4479.11) deviates from extracted subtotal (3795.85)."
+    ]
+  }
+}

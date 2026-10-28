@@ -1,0 +1,50 @@
+{
+  "metadata": {
+    "filename": "INV_0012.pdf",
+    "document_type": "digital_pdf",
+    "page_count": 1,
+    "token_count": 70,
+    "ocr_engine": "native_pdf",
+    "extraction_method": "crf_ml",
+    "processing_time_ms": 7.22,
+    "timestamp": "2026-10-28T09:27:55Z"
+  },
+  "fields": {
+    "invoice_number": "INV-2024-9836",
+    "invoice_date": "2024-12-25",
+    "supplier_name": "Quantum Precision Hardware Pvt",
+    "buyer_name": "BlueStar Enterprise Solutions",
+    "purchase_order_number": "ORD-88-806",
+    "currency": "INR",
+    "subtotal": 3100.31,
+    "tax_amount": 558.06,
+    "total_amount": 3658.37,
+    "tax_id": "19AABCQ7777N1Z4",
+    "tax_id_type": "GSTIN"
+  },
+  "line_items": [
+    {
+      "description": "Software Architecture Consulting",
+      "quantity": 3.0,
+      "unit_price": 515.72,
+      "tax_rate": null,
+      "tax_amount": 278.49,
+      "total": 1825.65
+    },
+    {
+      "description": "Technical Support & Maintenance",
+      "quantity": 5.0,
+      "unit_price": 310.63,
+      "tax_rate": null,
+      "tax_amount": 279.57,
+      "total": 1832.72
+    }
+  ],
+  "validation": {
+    "is_valid": true,
+    "errors": [],
+    "warnings": [
+      "Line items sum (3658.37) deviates from extracted subtotal (3100.31)."
+    ]
+  }
+}

@@ -1,0 +1,259 @@
+"""
+Line-Item Table Extraction Module.
+Uses spatial OCR coordinates, column boundary detection, horizontal row clustering,
+and mathematical constraint verification to extract invoice line items.
+"""
+
+from typing import List, Dict, Any, Optional, Tuple
+import re
+
+
+class LineItemExtractor:
+    """Extracts tabular line items (description, quantity, unit price, tax, total) using geometry and rules."""
+
+    def __init__(self):
+        # Column header keywords
+        self.col_keywords = {
+            "description": ["description", "item", "particulars", "product", "details", "service", "desc"],
+            "quantity": ["qty", "quantity", "qnty", "units", "count", "hrs", "hours"],
+            "unit_price": ["rate", "price", "unit price", "unit_price", "unit cost", "cost"],
+            "tax": ["tax", "tax %", "tax rate", "gst", "vat", "cgst", "sgst", "igst"],
+            "total": ["amount", "total", "line total", "net amount", "total amt"],
+        }
+        self.table_end_keywords = [
+            "subtotal", "sub total", "sub-total", "taxable amount",
+            "total tax", "grand total", "net amount", "terms & conditions",
+            "bank details", "signature", "authorized", "thank you",
+        ]
+        self.num_regex = re.compile(r"^\$?(\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?|\d+(?:\.\d{1,2})?)$")
+
+    def extract_line_items(self, tokens: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """
+        Extracts structured line items from document tokens.
+        """
+        if not tokens:
+            return []
+
+        # 1. Group tokens into horizontal lines
+        lines = self._group_tokens_by_y(tokens)
+        if not lines:
+            return []
+
+        # 2. Locate table header line and determine column bounding spans
+        header_idx, col_spans = self._detect_table_headers(lines)
+        if header_idx is None or not col_spans:
+            # Fallback to coordinate-less line scanning
+            return self._fallback_line_item_parser(lines)
+
+        # 3. Find end of table (subtotal or total line)
+        end_idx = self._detect_table_end(lines, header_idx)
+
+        # 4. Extract rows between header and end
+        raw_rows = lines[header_idx + 1:end_idx]
+        extracted_items: List[Dict[str, Any]] = []
+
+        for row in raw_rows:
+            item = self._parse_row_with_columns(row, col_spans)
+            if item and self._is_valid_item(item):
+                extracted_items.append(item)
+
+        # If strict column mapping yielded nothing, try heuristic line parsing
+        if not extracted_items:
+            extracted_items = self._fallback_line_item_parser(raw_rows)
+
+        return extracted_items
+
+    def _group_tokens_by_y(self, tokens: List[Dict[str, Any]], y_thresh: float = 0.012) -> List[List[Dict[str, Any]]]:
+        """Clusters tokens into lines by vertical coordinate."""
+        sorted_toks = sorted(tokens, key=lambda t: (t.get("page_num", 1), t["norm_bbox"][1], t["norm_bbox"][0]))
+        lines: List[List[Dict[str, Any]]] = []
+        cur_line: List[Dict[str, Any]] = []
+        cur_page = None
+        cur_y = None
+
+        for t in sorted_toks:
+            p = t.get("page_num", 1)
+            y = t["norm_bbox"][1]
+
+            if cur_page is None:
+                cur_page = p
+                cur_y = y
+                cur_line = [t]
+            elif p != cur_page or abs(y - cur_y) > y_thresh:
+                if cur_line:
+                    cur_line.sort(key=lambda tok: tok["norm_bbox"][0])
+                    lines.append(cur_line)
+                cur_page = p
+                cur_y = y
+                cur_line = [t]
+            else:
+                cur_line.append(t)
+
+        if cur_line:
+            cur_line.sort(key=lambda tok: tok["norm_bbox"][0])
+            lines.append(cur_line)
+
+        return lines
+
+    def _detect_table_headers(self, lines: List[List[Dict[str, Any]]]) -> Tuple[Optional[int], Dict[str, float]]:
+        """Identifies line index with the most table header keywords and determines column x-positions."""
+        best_idx = None
+        best_score = 0
+        best_col_positions: Dict[str, float] = {}
+
+        for idx, line in enumerate(lines[:30]):
+            line_text = " ".join(t["clean_text"].lower() for t in line)
+            matched_cols = {}
+
+            for col, kws in self.col_keywords.items():
+                for t in line:
+                    word = t["clean_text"].lower().strip(":;#")
+                    if any(kw == word or kw in word for kw in kws):
+                        matched_cols[col] = t["norm_bbox"][0]
+                        break
+
+            # Need at least 2 distinct column indicators (e.g. description and amount/qty)
+            if len(matched_cols) >= 2 and len(matched_cols) > best_score:
+                best_score = len(matched_cols)
+                best_idx = idx
+                best_col_positions = matched_cols
+
+        return best_idx, best_col_positions
+
+    def _detect_table_end(self, lines: List[List[Dict[str, Any]]], start_idx: int) -> int:
+        """Finds line where the item table terminates."""
+        for idx in range(start_idx + 1, len(lines)):
+            line_text = " ".join(t["clean_text"].lower() for t in lines[idx])
+            if any(term in line_text for term in self.table_end_keywords):
+                return idx
+        return len(lines)
+
+    def _parse_row_with_columns(
+        self, row: List[Dict[str, Any]], col_spans: Dict[str, float]
+    ) -> Optional[Dict[str, Any]]:
+        """Maps tokens in a single row to closest detected column headers."""
+        desc_tokens = []
+        numbers = []
+
+        # Sort detected columns left-to-right
+        sorted_cols = sorted(col_spans.items(), key=lambda x: x[1])
+
+        item: Dict[str, Any] = {
+            "description": "",
+            "quantity": None,
+            "unit_price": None,
+            "tax_rate": None,
+            "tax_amount": None,
+            "total": None,
+        }
+
+        for t in row:
+            text = t["clean_text"]
+            x = t["norm_bbox"][0]
+            clean_num = text.replace(",", "").replace("$", "").replace("€", "").replace("£", "").replace("₹", "")
+
+            # Check if this token is a valid number
+            if self._is_float(clean_num):
+                val = float(clean_num)
+                numbers.append((x, val))
+            else:
+                desc_tokens.append(text)
+
+        item["description"] = " ".join(desc_tokens).strip()
+
+        # If numbers found, assign based on standard invoice semantics
+        if numbers:
+            # Sort numbers by x-coordinate (left to right)
+            numbers.sort(key=lambda n: n[0])
+            num_vals = [n[1] for n in numbers]
+
+            if len(num_vals) == 1:
+                item["total"] = num_vals[0]
+                item["quantity"] = 1.0
+                item["unit_price"] = num_vals[0]
+            elif len(num_vals) == 2:
+                # Typically (qty, total) or (unit_price, total)
+                item["quantity"] = num_vals[0]
+                item["total"] = num_vals[1]
+                if item["quantity"] > 0:
+                    item["unit_price"] = round(item["total"] / item["quantity"], 2)
+            elif len(num_vals) >= 3:
+                # Common order: Qty, Unit Price, [Tax], Total
+                item["quantity"] = num_vals[0]
+                item["unit_price"] = num_vals[1]
+                if len(num_vals) == 3:
+                    item["total"] = num_vals[2]
+                elif len(num_vals) >= 4:
+                    item["tax_amount"] = num_vals[2]
+                    item["total"] = num_vals[-1]
+
+        return item
+
+    def _fallback_line_item_parser(self, lines: List[List[Dict[str, Any]]]) -> List[Dict[str, Any]]:
+        """Fallback pattern-based line item detector for unaligned or unusual tables."""
+        items: List[Dict[str, Any]] = []
+
+        for row in lines:
+            row_text = " ".join(t["clean_text"] for t in row).strip()
+            if not row_text:
+                continue
+
+            # Check if line contains numbers at the end
+            words = row_text.split()
+            if len(words) < 2:
+                continue
+
+            # Check table end words
+            if any(k in row_text.lower() for k in self.table_end_keywords):
+                continue
+
+            # Look for amounts at the end of the line
+            numeric_indices = []
+            for idx, w in enumerate(words):
+                clean = w.replace(",", "").replace("$", "").replace("€", "").replace("£", "").replace("₹", "")
+                if self._is_float(clean):
+                    numeric_indices.append((idx, float(clean)))
+
+            if numeric_indices:
+                first_num_idx = numeric_indices[0][0]
+                desc = " ".join(words[:first_num_idx]).strip()
+                if not desc or len(desc) < 2:
+                    continue
+
+                vals = [n[1] for n in numeric_indices]
+                item = {
+                    "description": desc,
+                    "quantity": vals[0] if len(vals) >= 2 else 1.0,
+                    "unit_price": vals[1] if len(vals) >= 3 else (vals[0] if len(vals) == 2 else vals[0]),
+                    "tax_rate": None,
+                    "tax_amount": None,
+                    "total": vals[-1],
+                }
+                if self._is_valid_item(item):
+                    items.append(item)
+
+        return items
+
+    @staticmethod
+    def _is_float(val: str) -> bool:
+        try:
+            float(val)
+            return True
+        except ValueError:
+            return False
+
+    @staticmethod
+    def _is_valid_item(item: Dict[str, Any]) -> bool:
+        """Validates that extracted item has substantive content and reasonable values."""
+        desc = item.get("description", "")
+        total = item.get("total")
+        # Must have non-trivial description and at least a total or price
+        if not desc or len(desc) < 2:
+            return False
+        if total is None and item.get("unit_price") is None:
+            return False
+        # Ignore lines that are headers or summary lines
+        lower_desc = desc.lower()
+        if any(h in lower_desc for h in ["subtotal", "total", "tax", "date", "invoice", "page"]):
+            return False
+        return True

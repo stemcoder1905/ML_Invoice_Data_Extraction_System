@@ -1,0 +1,50 @@
+{
+  "metadata": {
+    "filename": "INV_0005.pdf",
+    "document_type": "digital_pdf",
+    "page_count": 1,
+    "token_count": 69,
+    "ocr_engine": "native_pdf",
+    "extraction_method": "crf_ml",
+    "processing_time_ms": 9.17,
+    "timestamp": "2026-10-28T09:27:53Z"
+  },
+  "fields": {
+    "invoice_number": "INV-2024-5375",
+    "invoice_date": "2024-11-23",
+    "supplier_name": "Zenith Software Systems GmbH",
+    "buyer_name": "BlueStar Enterprise Solutions",
+    "purchase_order_number": "ORD-88-763",
+    "currency": "EUR",
+    "subtotal": 2816.08,
+    "tax_amount": 506.89,
+    "total_amount": 3322.97,
+    "tax_id": "24AAACZ3333M1Z9",
+    "tax_id_type": "GSTIN"
+  },
+  "line_items": [
+    {
+      "description": "Enterprise Security License",
+      "quantity": 2.0,
+      "unit_price": 427.06,
+      "tax_rate": null,
+      "tax_amount": 153.74,
+      "total": 1007.86
+    },
+    {
+      "description": "Software Architecture Consulting",
+      "quantity": 4.0,
+      "unit_price": 490.49,
+      "tax_rate": null,
+      "tax_amount": 353.15,
+      "total": 2315.11
+    }
+  ],
+  "validation": {
+    "is_valid": true,
+    "errors": [],
+    "warnings": [
+      "Line items sum (3322.97) deviates from extracted subtotal (2816.08)."
+    ]
+  }
+}

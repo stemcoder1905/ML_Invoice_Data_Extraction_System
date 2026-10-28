@@ -1,0 +1,50 @@
+{
+  "metadata": {
+    "filename": "INV_0018.pdf",
+    "document_type": "digital_pdf",
+    "page_count": 1,
+    "token_count": 70,
+    "ocr_engine": "native_pdf",
+    "extraction_method": "hybrid_crf_rules",
+    "processing_time_ms": 11.15,
+    "timestamp": "2026-10-28T09:27:58Z"
+  },
+  "fields": {
+    "invoice_number": "INV-2024-9884",
+    "invoice_date": "2024-12-02",
+    "supplier_name": "Vertex Global Solutions Ltd",
+    "buyer_name": "Global Trade Logistics Inc",
+    "purchase_order_number": "GTL-421",
+    "currency": "INR",
+    "subtotal": 2872.45,
+    "tax_amount": 517.04,
+    "total_amount": 3389.49,
+    "tax_id": "27AABCU9603R1ZM",
+    "tax_id_type": "GSTIN"
+  },
+  "line_items": [
+    {
+      "description": "Cloud Server Compute (vCPU/RAM)",
+      "quantity": 4.0,
+      "unit_price": 126.1,
+      "tax_rate": null,
+      "tax_amount": 90.79,
+      "total": 595.19
+    },
+    {
+      "description": "Software Architecture Consulting",
+      "quantity": 5.0,
+      "unit_price": 473.61,
+      "tax_rate": null,
+      "tax_amount": 426.25,
+      "total": 2794.3
+    }
+  ],
+  "validation": {
+    "is_valid": true,
+    "errors": [],
+    "warnings": [
+      "Line items sum (3389.49) deviates from extracted subtotal (2872.45)."
+    ]
+  }
+}

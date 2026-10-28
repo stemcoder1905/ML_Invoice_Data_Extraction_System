@@ -1,0 +1,66 @@
+{
+  "metadata": {
+    "filename": "INV_0013.pdf",
+    "document_type": "digital_pdf",
+    "page_count": 1,
+    "token_count": 84,
+    "ocr_engine": "native_pdf",
+    "extraction_method": "hybrid_crf_rules",
+    "processing_time_ms": 9.2,
+    "timestamp": "2026-10-28T09:27:56Z"
+  },
+  "fields": {
+    "invoice_number": "INV-2024-2050",
+    "invoice_date": "2024-01-11",
+    "supplier_name": "Horizon Digital Media LLC",
+    "buyer_name": "BlueStar Enterprise Solutions",
+    "purchase_order_number": "ORD-88-702",
+    "currency": "USD",
+    "subtotal": 1234.03,
+    "tax_amount": 222.12,
+    "total_amount": 1456.15,
+    "tax_id": "33AAACH9999K1Z2",
+    "tax_id_type": "GSTIN"
+  },
+  "line_items": [
+    {
+      "description": "Technical Support & Maintenance",
+      "quantity": 1.0,
+      "unit_price": 333.71,
+      "tax_rate": null,
+      "tax_amount": 60.07,
+      "total": 393.78
+    },
+    {
+      "description": "Software Architecture Consulting",
+      "quantity": 1.0,
+      "unit_price": 484.34,
+      "tax_rate": null,
+      "tax_amount": 87.18,
+      "total": 571.52
+    },
+    {
+      "description": "Managed Database Hosting",
+      "quantity": 1.0,
+      "unit_price": 289.47,
+      "tax_rate": null,
+      "tax_amount": 52.1,
+      "total": 341.57
+    },
+    {
+      "description": "Cloud Server Compute (vCPU/RAM)",
+      "quantity": 1.0,
+      "unit_price": 126.51,
+      "tax_rate": null,
+      "tax_amount": 22.77,
+      "total": 149.28
+    }
+  ],
+  "validation": {
+    "is_valid": true,
+    "errors": [],
+    "warnings": [
+      "Line items sum (1456.15) deviates from extracted subtotal (1234.03)."
+    ]
+  }
+}

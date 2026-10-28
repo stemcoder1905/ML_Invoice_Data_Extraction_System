@@ -1,0 +1,66 @@
+{
+  "metadata": {
+    "filename": "INV_0002.pdf",
+    "document_type": "digital_pdf",
+    "page_count": 1,
+    "token_count": 85,
+    "ocr_engine": "native_pdf",
+    "extraction_method": "hybrid_crf_rules",
+    "processing_time_ms": 9.83,
+    "timestamp": "2026-10-28T09:27:52Z"
+  },
+  "fields": {
+    "invoice_number": "INV-2024-9929",
+    "invoice_date": "2024-04-14",
+    "supplier_name": "Horizon Digital Media LLC",
+    "buyer_name": "Frontier BioScience Research",
+    "purchase_order_number": "BIO-PO-559",
+    "currency": "USD",
+    "subtotal": 3441.82,
+    "tax_amount": 619.53,
+    "total_amount": 4061.35,
+    "tax_id": "33AAACH9999K1Z2",
+    "tax_id_type": "GSTIN"
+  },
+  "line_items": [
+    {
+      "description": "Software Architecture Consulting",
+      "quantity": 4.0,
+      "unit_price": 501.04,
+      "tax_rate": null,
+      "tax_amount": 360.75,
+      "total": 2364.91
+    },
+    {
+      "description": "Data Backup & Recovery Storage",
+      "quantity": 2.0,
+      "unit_price": 86.81,
+      "tax_rate": null,
+      "tax_amount": 31.25,
+      "total": 204.87
+    },
+    {
+      "description": "Cloud Server Compute (vCPU/RAM)",
+      "quantity": 3.0,
+      "unit_price": 111.68,
+      "tax_rate": null,
+      "tax_amount": 60.31,
+      "total": 395.35
+    },
+    {
+      "description": "Managed Database Hosting",
+      "quantity": 4.0,
+      "unit_price": 232.25,
+      "tax_rate": null,
+      "tax_amount": 167.22,
+      "total": 1096.22
+    }
+  ],
+  "validation": {
+    "is_valid": true,
+    "errors": [],
+    "warnings": [
+      "Line items sum (4061.35) deviates from extracted subtotal (3441.82)."
+    ]
+  }
+}

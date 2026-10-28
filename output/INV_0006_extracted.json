@@ -1,0 +1,50 @@
+{
+  "metadata": {
+    "filename": "INV_0006.pdf",
+    "document_type": "digital_pdf",
+    "page_count": 1,
+    "token_count": 69,
+    "ocr_engine": "native_pdf",
+    "extraction_method": "hybrid_crf_rules",
+    "processing_time_ms": 7.13,
+    "timestamp": "2026-10-28T09:27:53Z"
+  },
+  "fields": {
+    "invoice_number": "INV-2024-6314",
+    "invoice_date": "2024-01-27",
+    "supplier_name": "Horizon Digital Media LLC",
+    "buyer_name": "Frontier BioScience Research",
+    "purchase_order_number": "BIO-PO-334",
+    "currency": "USD",
+    "subtotal": 4089.99,
+    "tax_amount": 736.2,
+    "total_amount": 4826.19,
+    "tax_id": "33AAACH9999K1Z2",
+    "tax_id_type": "GSTIN"
+  },
+  "line_items": [
+    {
+      "description": "Network Firewall Appliance",
+      "quantity": 3.0,
+      "unit_price": 781.88,
+      "tax_rate": null,
+      "tax_amount": 422.22,
+      "total": 2767.86
+    },
+    {
+      "description": "Technical Support & Maintenance",
+      "quantity": 5.0,
+      "unit_price": 348.87,
+      "tax_rate": null,
+      "tax_amount": 313.98,
+      "total": 2058.33
+    }
+  ],
+  "validation": {
+    "is_valid": true,
+    "errors": [],
+    "warnings": [
+      "Line items sum (4826.19) deviates from extracted subtotal (4089.99)."
+    ]
+  }
+}

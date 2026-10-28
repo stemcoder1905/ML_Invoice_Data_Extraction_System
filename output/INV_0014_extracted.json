@@ -1,0 +1,66 @@
+{
+  "metadata": {
+    "filename": "INV_0014.pdf",
+    "document_type": "digital_pdf",
+    "page_count": 1,
+    "token_count": 85,
+    "ocr_engine": "native_pdf",
+    "extraction_method": "hybrid_crf_rules",
+    "processing_time_ms": 10.27,
+    "timestamp": "2026-10-28T09:27:56Z"
+  },
+  "fields": {
+    "invoice_number": "INV-2024-8954",
+    "invoice_date": "2024-09-07",
+    "supplier_name": "Pioneer Logistics & Freight Services",
+    "buyer_name": "Frontier BioScience Research",
+    "purchase_order_number": "BIO-PO-235",
+    "currency": "INR",
+    "subtotal": 3525.29,
+    "tax_amount": 634.55,
+    "total_amount": 4159.84,
+    "tax_id": "06AAACP4444L1Z1",
+    "tax_id_type": "GSTIN"
+  },
+  "line_items": [
+    {
+      "description": "API Integration Gateway Service",
+      "quantity": 2.0,
+      "unit_price": 167.09,
+      "tax_rate": null,
+      "tax_amount": 60.15,
+      "total": 394.33
+    },
+    {
+      "description": "Managed Database Hosting",
+      "quantity": 4.0,
+      "unit_price": 251.57,
+      "tax_rate": null,
+      "tax_amount": 181.13,
+      "total": 1187.41
+    },
+    {
+      "description": "Technical Support & Maintenance",
+      "quantity": 4.0,
+      "unit_price": 312.03,
+      "tax_rate": null,
+      "tax_amount": 224.66,
+      "total": 1472.78
+    },
+    {
+      "description": "Network Firewall Appliance",
+      "quantity": 1.0,
+      "unit_price": 936.71,
+      "tax_rate": null,
+      "tax_amount": 168.61,
+      "total": 1105.32
+    }
+  ],
+  "validation": {
+    "is_valid": true,
+    "errors": [],
+    "warnings": [
+      "Line items sum (4159.84) deviates from extracted subtotal (3525.29)."
+    ]
+  }
+}

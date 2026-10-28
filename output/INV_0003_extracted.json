@@ -1,0 +1,58 @@
+{
+  "metadata": {
+    "filename": "INV_0003.pdf",
+    "document_type": "digital_pdf",
+    "page_count": 1,
+    "token_count": 79,
+    "ocr_engine": "native_pdf",
+    "extraction_method": "crf_ml",
+    "processing_time_ms": 7.15,
+    "timestamp": "2026-10-28T09:27:52Z"
+  },
+  "fields": {
+    "invoice_number": "INV-2024-5334",
+    "invoice_date": "2024-01-26",
+    "supplier_name": "Zenith Software Systems GmbH",
+    "buyer_name": "Global Trade Logistics Inc",
+    "purchase_order_number": "GTL-847",
+    "currency": "EUR",
+    "subtotal": 3369.74,
+    "tax_amount": 606.55,
+    "total_amount": 3976.29,
+    "tax_id": "24AAACZ3333M1Z9",
+    "tax_id_type": "GSTIN"
+  },
+  "line_items": [
+    {
+      "description": "Managed Database Hosting",
+      "quantity": 5.0,
+      "unit_price": 246.99,
+      "tax_rate": null,
+      "tax_amount": 222.29,
+      "total": 1457.24
+    },
+    {
+      "description": "Technical Support & Maintenance",
+      "quantity": 5.0,
+      "unit_price": 349.69,
+      "tax_rate": null,
+      "tax_amount": 314.72,
+      "total": 2063.17
+    },
+    {
+      "description": "Cloud Server Compute (vCPU/RAM)",
+      "quantity": 3.0,
+      "unit_price": 128.78,
+      "tax_rate": null,
+      "tax_amount": 69.54,
+      "total": 455.88
+    }
+  ],
+  "validation": {
+    "is_valid": true,
+    "errors": [],
+    "warnings": [
+      "Line items sum (3976.29) deviates from extracted subtotal (3369.74)."
+    ]
+  }
+}

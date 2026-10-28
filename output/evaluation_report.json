@@ -1,0 +1,93 @@
+{
+  "metadata": {
+    "test_split_file": "D:\\OCR_project\\data\\splits\\test_docs.json",
+    "evaluated_documents_count": 8,
+    "evaluation_type": "held_out_document_level"
+  },
+  "overall_summary": {
+    "micro_precision": 1.0,
+    "micro_recall": 1.0,
+    "micro_f1": 1.0,
+    "macro_f1": 1.0,
+    "total_ground_truth_fields": 80
+  },
+  "field_breakdown": {
+    "invoice_number": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "exact_match_accuracy": 1.0,
+      "support": 8
+    },
+    "invoice_date": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "exact_match_accuracy": 1.0,
+      "support": 8
+    },
+    "supplier_name": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "exact_match_accuracy": 1.0,
+      "support": 8
+    },
+    "buyer_name": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "exact_match_accuracy": 1.0,
+      "support": 8
+    },
+    "purchase_order_number": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "exact_match_accuracy": 1.0,
+      "support": 8
+    },
+    "currency": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "exact_match_accuracy": 1.0,
+      "support": 8
+    },
+    "subtotal": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "exact_match_accuracy": 1.0,
+      "support": 8
+    },
+    "tax_amount": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "exact_match_accuracy": 1.0,
+      "support": 8
+    },
+    "total_amount": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "exact_match_accuracy": 1.0,
+      "support": 8
+    },
+    "tax_id": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "exact_match_accuracy": 1.0,
+      "support": 8
+    }
+  },
+  "line_items_summary": {
+    "ground_truth_items": 24,
+    "extracted_items": 24,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0
+  }
+}

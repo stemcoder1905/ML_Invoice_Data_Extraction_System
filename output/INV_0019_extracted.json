@@ -1,0 +1,50 @@
+{
+  "metadata": {
+    "filename": "INV_0019.pdf",
+    "document_type": "digital_pdf",
+    "page_count": 1,
+    "token_count": 73,
+    "ocr_engine": "native_pdf",
+    "extraction_method": "crf_ml",
+    "processing_time_ms": 8.95,
+    "timestamp": "2026-10-28T09:27:58Z"
+  },
+  "fields": {
+    "invoice_number": "INV-2024-2123",
+    "invoice_date": "2024-02-20",
+    "supplier_name": "Nexus Cloud Technologies Inc",
+    "buyer_name": "BlueStar Enterprise Solutions",
+    "purchase_order_number": "ORD-88-791",
+    "currency": "USD",
+    "subtotal": 985.4,
+    "tax_amount": 177.37,
+    "total_amount": 1162.77,
+    "tax_id": "07AAACN1234F1Z5",
+    "tax_id_type": "GSTIN"
+  },
+  "line_items": [
+    {
+      "description": "Data Backup & Recovery Storage",
+      "quantity": 5.0,
+      "unit_price": 87.65,
+      "tax_rate": null,
+      "tax_amount": 78.88,
+      "total": 517.13
+    },
+    {
+      "description": "Cloud Server Compute (vCPU/RAM)",
+      "quantity": 5.0,
+      "unit_price": 109.43,
+      "tax_rate": null,
+      "tax_amount": 98.49,
+      "total": 645.64
+    }
+  ],
+  "validation": {
+    "is_valid": true,
+    "errors": [],
+    "warnings": [
+      "Line items sum (1162.77) deviates from extracted subtotal (985.40)."
+    ]
+  }
+}

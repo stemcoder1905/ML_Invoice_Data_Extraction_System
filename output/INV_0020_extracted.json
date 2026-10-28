@@ -1,0 +1,66 @@
+{
+  "metadata": {
+    "filename": "INV_0020.pdf",
+    "document_type": "digital_pdf",
+    "page_count": 1,
+    "token_count": 85,
+    "ocr_engine": "native_pdf",
+    "extraction_method": "crf_ml",
+    "processing_time_ms": 10.28,
+    "timestamp": "2026-10-28T09:27:58Z"
+  },
+  "fields": {
+    "invoice_number": "INV-2024-9566",
+    "invoice_date": "2024-05-11",
+    "supplier_name": "Nexus Cloud Technologies Inc",
+    "buyer_name": "Velocity FinTech Labs",
+    "purchase_order_number": "VFL-PO-309",
+    "currency": "USD",
+    "subtotal": 4855.99,
+    "tax_amount": 874.08,
+    "total_amount": 5730.07,
+    "tax_id": "07AAACN1234F1Z5",
+    "tax_id_type": "GSTIN"
+  },
+  "line_items": [
+    {
+      "description": "Network Firewall Appliance",
+      "quantity": 2.0,
+      "unit_price": 936.28,
+      "tax_rate": null,
+      "tax_amount": 337.06,
+      "total": 2209.62
+    },
+    {
+      "description": "Managed Database Hosting",
+      "quantity": 3.0,
+      "unit_price": 259.29,
+      "tax_rate": null,
+      "tax_amount": 140.02,
+      "total": 917.89
+    },
+    {
+      "description": "Enterprise Security License",
+      "quantity": 1.0,
+      "unit_price": 406.26,
+      "tax_rate": null,
+      "tax_amount": 73.13,
+      "total": 479.39
+    },
+    {
+      "description": "Technical Support & Maintenance",
+      "quantity": 5.0,
+      "unit_price": 359.86,
+      "tax_rate": null,
+      "tax_amount": 323.87,
+      "total": 2123.17
+    }
+  ],
+  "validation": {
+    "is_valid": true,
+    "errors": [],
+    "warnings": [
+      "Line items sum (5730.07) deviates from extracted subtotal (4855.99)."
+    ]
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "metadata": {
+    "filename": "INV_0009.pdf",
+    "document_type": "digital_pdf",
+    "page_count": 1,
+    "token_count": 76,
+    "ocr_engine": "native_pdf",
+    "extraction_method": "hybrid_crf_rules",
+    "processing_time_ms": 9.15,
+    "timestamp": "2026-10-28T09:27:54Z"
+  },
+  "fields": {
+    "invoice_number": "INV-2024-2877",
+    "invoice_date": "2024-09-22",
+    "supplier_name": "Vertex Global Solutions Ltd",
+    "buyer_name": "Frontier BioScience Research",
+    "purchase_order_number": "BIO-PO-868",
+    "currency": "INR",
+    "subtotal": 4972.26,
+    "tax_amount": 895.01,
+    "total_amount": 5867.27,
+    "tax_id": "27AABCU9603R1ZM",
+    "tax_id_type": "GSTIN"
+  },
+  "line_items": [
+    {
+      "description": "Network Firewall Appliance",
+      "quantity": 4.0,
+      "unit_price": 805.33,
+      "tax_rate": null,
+      "tax_amount": 579.84,
+      "total": 3801.16
+    },
+    {
+      "description": "Cloud Server Compute (vCPU/RAM)",
+      "quantity": 1.0,
+      "unit_price": 142.34,
+      "tax_rate": null,
+      "tax_amount": 25.62,
+      "total": 167.96
+    },
+    {
+      "description": "Enterprise Security License",
+      "quantity": 3.0,
+      "unit_price": 536.2,
+      "tax_rate": null,
+      "tax_amount": 289.55,
+      "total": 1898.15
+    }
+  ],
+  "validation": {
+    "is_valid": true,
+    "errors": [],
+    "warnings": [
+      "Line items sum (5867.27) deviates from extracted subtotal (4972.26)."
+    ]
+  }
+}

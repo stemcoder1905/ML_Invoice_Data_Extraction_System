@@ -1,0 +1,50 @@
+{
+  "metadata": {
+    "filename": "INV_0004.pdf",
+    "document_type": "digital_pdf",
+    "page_count": 1,
+    "token_count": 71,
+    "ocr_engine": "native_pdf",
+    "extraction_method": "crf_ml",
+    "processing_time_ms": 7.98,
+    "timestamp": "2026-10-28T09:27:53Z"
+  },
+  "fields": {
+    "invoice_number": "INV-2024-4734",
+    "invoice_date": "2024-05-25",
+    "supplier_name": "Nexus Cloud Technologies Inc",
+    "buyer_name": "Acme Retail Enterprises",
+    "purchase_order_number": "PO-2024-181",
+    "currency": "USD",
+    "subtotal": 1630.95,
+    "tax_amount": 293.58,
+    "total_amount": 1924.53,
+    "tax_id": "07AAACN1234F1Z5",
+    "tax_id_type": "GSTIN"
+  },
+  "line_items": [
+    {
+      "description": "Managed Database Hosting",
+      "quantity": 3.0,
+      "unit_price": 259.01,
+      "tax_rate": null,
+      "tax_amount": 139.87,
+      "total": 916.9
+    },
+    {
+      "description": "Technical Support & Maintenance",
+      "quantity": 3.0,
+      "unit_price": 284.64,
+      "tax_rate": null,
+      "tax_amount": 153.71,
+      "total": 1007.63
+    }
+  ],
+  "validation": {
+    "is_valid": true,
+    "errors": [],
+    "warnings": [
+      "Line items sum (1924.53) deviates from extracted subtotal (1630.95)."
+    ]
+  }
+}

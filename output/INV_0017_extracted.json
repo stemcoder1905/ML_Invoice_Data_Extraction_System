@@ -1,0 +1,58 @@
+{
+  "metadata": {
+    "filename": "INV_0017.pdf",
+    "document_type": "digital_pdf",
+    "page_count": 1,
+    "token_count": 76,
+    "ocr_engine": "native_pdf",
+    "extraction_method": "hybrid_crf_rules",
+    "processing_time_ms": 8.13,
+    "timestamp": "2026-10-28T09:27:57Z"
+  },
+  "fields": {
+    "invoice_number": "INV-2024-1036",
+    "invoice_date": "2024-05-13",
+    "supplier_name": "Apex Industrial Supplies Corp",
+    "buyer_name": "Velocity FinTech Labs",
+    "purchase_order_number": "VFL-PO-902",
+    "currency": "INR",
+    "subtotal": 6343.65,
+    "tax_amount": 1141.86,
+    "total_amount": 7485.51,
+    "tax_id": "29AABCA5678E1Z8",
+    "tax_id_type": "GSTIN"
+  },
+  "line_items": [
+    {
+      "description": "Software Architecture Consulting",
+      "quantity": 5.0,
+      "unit_price": 549.28,
+      "tax_rate": null,
+      "tax_amount": 494.35,
+      "total": 3240.75
+    },
+    {
+      "description": "Technical Support & Maintenance",
+      "quantity": 4.0,
+      "unit_price": 283.93,
+      "tax_rate": null,
+      "tax_amount": 204.43,
+      "total": 1340.15
+    },
+    {
+      "description": "Network Firewall Appliance",
+      "quantity": 3.0,
+      "unit_price": 820.51,
+      "tax_rate": null,
+      "tax_amount": 443.08,
+      "total": 2904.61
+    }
+  ],
+  "validation": {
+    "is_valid": true,
+    "errors": [],
+    "warnings": [
+      "Line items sum (7485.51) deviates from extracted subtotal (6343.65)."
+    ]
+  }
+}
