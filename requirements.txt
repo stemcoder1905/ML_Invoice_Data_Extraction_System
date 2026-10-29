@@ -9,7 +9,7 @@ sklearn-crfsuite>=0.3.6
 python-crfsuite>=0.9.7
 
 # Computer Vision & Image Preprocessing
-opencv-python>=4.7.0
+opencv-python-headless>=4.7.0
 Pillow>=9.0.0
 
 # Document Parsing & OCR
