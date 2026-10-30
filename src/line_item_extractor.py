@@ -131,12 +131,11 @@ class LineItemExtractor:
     def _parse_row_with_columns(
         self, row: List[Dict[str, Any]], col_spans: Dict[str, float]
     ) -> Optional[Dict[str, Any]]:
-        """Maps tokens in a single row to closest detected column headers."""
-        desc_tokens = []
-        numbers = []
-
-        # Sort detected columns left-to-right
-        sorted_cols = sorted(col_spans.items(), key=lambda x: x[1])
+        """Maps tokens in a single row to closest detected column headers using spatial column boundaries."""
+        currencies = {
+            "USD", "EUR", "INR", "GBP", "CAD", "SGD", "AUD", "JPY", "CHF", "CNY",
+            "$", "€", "£", "₹", "RS", "RS."
+        }
 
         item: Dict[str, Any] = {
             "description": "",
@@ -147,45 +146,90 @@ class LineItemExtractor:
             "total": None,
         }
 
+        # Retrieve column boundary positions
+        q_pos = col_spans.get("quantity")
+        p_pos = col_spans.get("unit_price")
+        tax_pos = col_spans.get("tax")
+        tot_pos = col_spans.get("total")
+
+        desc_tokens = []
+        numbers_with_x = []
+
+        # First column after description
+        first_num_col_pos = min([pos for pos in [q_pos, p_pos, tax_pos, tot_pos] if pos is not None], default=0.45)
+
         for t in row:
             text = t["clean_text"]
             x = t["norm_bbox"][0]
             clean_num = text.replace(",", "").replace("$", "").replace("€", "").replace("£", "").replace("₹", "")
 
-            # Check if this token is a valid number
-            if self._is_float(clean_num):
-                val = float(clean_num)
-                numbers.append((x, val))
+            # If token is in description column (left of first numerical column)
+            if x < (first_num_col_pos - 0.02):
+                if text.upper() not in currencies and not self._is_float(clean_num):
+                    desc_tokens.append(text)
+                elif self._is_float(clean_num) and desc_tokens:
+                    # Allow numbers inside descriptions (e.g. "A4 Paper", "Item 10")
+                    desc_tokens.append(text)
             else:
-                desc_tokens.append(text)
+                if self._is_float(clean_num):
+                    val = float(clean_num)
+                    numbers_with_x.append((x, val))
 
-        item["description"] = " ".join(desc_tokens).strip()
+        raw_desc = " ".join(desc_tokens).strip()
+        # Clean currency codes and punctuation artifact from description
+        clean_desc = re.sub(r"\b(?:USD|EUR|INR|GBP|CAD|SGD|AUD|JPY|CHF|CNY)\b", "", raw_desc).strip()
+        clean_desc = re.sub(r"\s+", " ", clean_desc).strip(" -:;,")
+        item["description"] = clean_desc
 
-        # If numbers found, assign based on standard invoice semantics
-        if numbers:
-            # Sort numbers by x-coordinate (left to right)
-            numbers.sort(key=lambda n: n[0])
-            num_vals = [n[1] for n in numbers]
+        if numbers_with_x:
+            numbers_with_x.sort(key=lambda n: n[0])
 
-            if len(num_vals) == 1:
-                item["total"] = num_vals[0]
-                item["quantity"] = 1.0
-                item["unit_price"] = num_vals[0]
-            elif len(num_vals) == 2:
-                # Typically (qty, total) or (unit_price, total)
-                item["quantity"] = num_vals[0]
-                item["total"] = num_vals[1]
-                if item["quantity"] > 0:
+            # Try to assign by spatial column proximity
+            assigned_indices = set()
+
+            if q_pos is not None:
+                # Find closest number to q_pos
+                cand_idx = min(range(len(numbers_with_x)), key=lambda i: abs(numbers_with_x[i][0] - q_pos))
+                if abs(numbers_with_x[cand_idx][0] - q_pos) < 0.12 and cand_idx not in assigned_indices:
+                    item["quantity"] = numbers_with_x[cand_idx][1]
+                    assigned_indices.add(cand_idx)
+
+            if tot_pos is not None:
+                # Total is typically furthest right or closest to tot_pos
+                cand_idx = min(range(len(numbers_with_x)), key=lambda i: abs(numbers_with_x[i][0] - tot_pos))
+                if abs(numbers_with_x[cand_idx][0] - tot_pos) < 0.12 and cand_idx not in assigned_indices:
+                    item["total"] = numbers_with_x[cand_idx][1]
+                    assigned_indices.add(cand_idx)
+
+            if p_pos is not None:
+                # Unit price
+                cand_idx = min(range(len(numbers_with_x)), key=lambda i: abs(numbers_with_x[i][0] - p_pos))
+                if abs(numbers_with_x[cand_idx][0] - p_pos) < 0.12 and cand_idx not in assigned_indices:
+                    item["unit_price"] = numbers_with_x[cand_idx][1]
+                    assigned_indices.add(cand_idx)
+
+            if tax_pos is not None:
+                cand_idx = min(range(len(numbers_with_x)), key=lambda i: abs(numbers_with_x[i][0] - tax_pos))
+                if abs(numbers_with_x[cand_idx][0] - tax_pos) < 0.12 and cand_idx not in assigned_indices:
+                    item["tax_amount"] = numbers_with_x[cand_idx][1]
+                    assigned_indices.add(cand_idx)
+
+            # Fallback to standard left-to-right order for unassigned items
+            num_vals = [n[1] for n in numbers_with_x]
+            if item["total"] is None and num_vals:
+                item["total"] = num_vals[-1]
+
+            if item["quantity"] is None:
+                if len(num_vals) >= 2:
+                    item["quantity"] = num_vals[0]
+                elif len(num_vals) == 1:
+                    item["quantity"] = 1.0
+
+            if item["unit_price"] is None:
+                if len(num_vals) >= 3:
+                    item["unit_price"] = num_vals[1]
+                elif item["total"] is not None and item["quantity"] is not None and item["quantity"] > 0:
                     item["unit_price"] = round(item["total"] / item["quantity"], 2)
-            elif len(num_vals) >= 3:
-                # Common order: Qty, Unit Price, [Tax], Total
-                item["quantity"] = num_vals[0]
-                item["unit_price"] = num_vals[1]
-                if len(num_vals) == 3:
-                    item["total"] = num_vals[2]
-                elif len(num_vals) >= 4:
-                    item["tax_amount"] = num_vals[2]
-                    item["total"] = num_vals[-1]
 
         return item
 

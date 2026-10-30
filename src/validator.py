@@ -70,6 +70,26 @@ class InvoiceValidator:
         tax_val = self._parse_numeric(cleaned.get("tax_amount"))
         total_val = self._parse_numeric(cleaned.get("total_amount"))
 
+        # Reconcile missing amount if 2 of 3 amounts are present
+        if subtotal_val is not None and total_val is not None and tax_val is None:
+            if total_val >= subtotal_val:
+                tax_val = round(total_val - subtotal_val, 2)
+        elif total_val is not None and tax_val is not None and subtotal_val is None:
+            if total_val >= tax_val:
+                subtotal_val = round(total_val - tax_val, 2)
+        elif subtotal_val is not None and tax_val is not None and total_val is None:
+            total_val = round(subtotal_val + tax_val, 2)
+
+        # If subtotal is still missing but line items exist
+        if subtotal_val is None and line_items:
+            items_tot = sum(self._parse_numeric(it.get("total")) or 0.0 for it in line_items)
+            if items_tot > 0:
+                subtotal_val = round(items_tot, 2)
+                if total_val is None and tax_val is not None:
+                    total_val = round(subtotal_val + tax_val, 2)
+                elif total_val is not None and tax_val is None and total_val >= subtotal_val:
+                    tax_val = round(total_val - subtotal_val, 2)
+
         cleaned["subtotal"] = subtotal_val
         cleaned["tax_amount"] = tax_val
         cleaned["total_amount"] = total_val
@@ -123,8 +143,12 @@ class InvoiceValidator:
         """Parses arbitrary date formats into standard ISO YYYY-MM-DD."""
         try:
             # Clean ordinals like 1st, 2nd, 3rd
-            clean_str = re.sub(r"(\d+)(st|nd|rd|th)", r"\1", date_str)
-            dt = date_parser.parse(clean_str, fuzzy=True, dayfirst=True)
+            clean_str = re.sub(r"(\d+)(st|nd|rd|th)", r"\1", date_str).strip()
+            # If date starts with 4-digit year (YYYY-MM-DD or YYYY/MM/DD), force yearfirst=True, dayfirst=False
+            if re.match(r"^\d{4}[-/]\d{1,2}[-/]\d{1,2}", clean_str):
+                dt = date_parser.parse(clean_str, fuzzy=True, yearfirst=True, dayfirst=False)
+            else:
+                dt = date_parser.parse(clean_str, fuzzy=True, dayfirst=True)
             if not (1990 <= dt.year <= 2040):
                 return None, f"Year {dt.year} is out of expected invoice range."
             return dt.strftime("%Y-%m-%d"), None

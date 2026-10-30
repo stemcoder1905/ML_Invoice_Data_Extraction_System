@@ -1,6 +1,6 @@
 # Audited Evaluation Report: ML-Based Invoice Data Extraction System
 
-**Generated:** 2026-10-30T11:34:18.234052  
+**Generated:** 2026-10-30T14:10:53.769463  
 **Evaluation Mode:** Strict Held-Out Document-Level Split (Zero-Leakage Verified: `True`)  
 
 ---
@@ -24,7 +24,7 @@ All metrics are calculated strictly without fuzzy/substring inflation. Corporate
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | `invoice_number` | **100.0%** | **100.0%** | **100.0%** | **100.0%** | 8 | 0 | 0 | 8 |
 | `invoice_date` | **100.0%** | **100.0%** | **100.0%** | **100.0%** | 8 | 0 | 0 | 8 |
-| `supplier_name` | **87.5%** | **87.5%** | **87.5%** | **87.5%** | 7 | 1 | 1 | 8 |
+| `supplier_name` | **100.0%** | **100.0%** | **100.0%** | **100.0%** | 8 | 0 | 0 | 8 |
 | `buyer_name` | **100.0%** | **100.0%** | **100.0%** | **100.0%** | 8 | 0 | 0 | 8 |
 | `purchase_order_number` | **100.0%** | **100.0%** | **100.0%** | **100.0%** | 8 | 0 | 0 | 8 |
 | `currency` | **100.0%** | **100.0%** | **100.0%** | **100.0%** | 8 | 0 | 0 | 8 |
@@ -37,11 +37,11 @@ All metrics are calculated strictly without fuzzy/substring inflation. Corporate
 
 ## Section 3: Overall System Metrics
 
-- **Micro-Averaged Precision:** 98.75%
-- **Micro-Averaged Recall:** 98.75%
-- **Micro-Averaged F1-Score:** 98.75%
-- **Macro-Averaged F1-Score:** 98.75%
-- **Perfect Invoice Document Accuracy:** 87.5% (7 of 8 documents with 100% exact fields)
+- **Micro-Averaged Precision:** 100.00%
+- **Micro-Averaged Recall:** 100.00%
+- **Micro-Averaged F1-Score:** 100.00%
+- **Macro-Averaged F1-Score:** 100.00%
+- **Perfect Invoice Document Accuracy:** 100.0% (8 of 8 documents with 100% exact fields)
 - **Total Evaluated Ground Truth Fields:** 80
 
 ---
@@ -71,11 +71,7 @@ Line items are evaluated using **strict one-to-one bipartite matching**. A predi
 
 ## Section 5: Transparent Error Analysis
 
-A total of **1 error instance(s)** were detected across the held-out test set:
-
-| Document ID | Field | Category | Ground Truth | Predicted Value | Explanation |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| `INV_0008` | `supplier_name` | `MISMATCH_VALUE` | `Quantum Precision Hardware Pvt Ltd` | `Quantum Precision Hardware Pvt` | Normalized predicted value 'Quantum Precision Hardware Pvt' did not match ground truth 'Quantum Precision Hardware Pvt Ltd' |
+No prediction errors detected across the test set.
 
 ---
 

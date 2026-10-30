@@ -61,8 +61,8 @@ class OCREngine:
                 page_tokens = self._extract_from_ocr(img, page_num)
                 all_tokens.extend(page_tokens)
 
-        # Sort tokens in standard natural reading order: top-to-bottom, left-to-right
-        all_tokens.sort(key=lambda t: (t["page_num"], t["norm_bbox"][1], t["norm_bbox"][0]))
+        # Preserve natural reading order from PyMuPDF/OCR engine, ordering primarily by page
+        all_tokens.sort(key=lambda t: t.get("page_num", 1))
         return all_tokens
 
     def _extract_from_native_words(

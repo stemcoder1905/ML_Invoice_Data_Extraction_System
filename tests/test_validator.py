@@ -59,3 +59,32 @@ def test_missing_fields_warnings():
     assert any("Missing 'invoice_date'" in w for w in res["warnings"])
     assert any("Missing 'total_amount'" in w for w in res["warnings"])
     assert any("Missing 'supplier_name'" in w for w in res["warnings"])
+
+
+def test_date_normalization_iso_dayfirst_safety():
+    val = InvoiceValidator()
+    # ISO date 2026-10-09 must remain 2026-10-09 (October 9), NOT 2026-09-10 (September 10)
+    norm, err = val._validate_and_normalize_date("2026-10-09")
+    assert err is None
+    assert norm == "2026-10-09"
+
+    norm2, err2 = val._validate_and_normalize_date("2026-10-01")
+    assert err2 is None
+    assert norm2 == "2026-10-01"
+
+
+def test_math_reconciliation_missing_tax_amount():
+    val = InvoiceValidator()
+    fields = {
+        "invoice_number": "INV-100",
+        "invoice_date": "2026-10-09",
+        "supplier_name": "Blue Harbor LLC",
+        "subtotal": 769.92,
+        "tax_amount": None,
+        "total_amount": 831.51,
+    }
+    res = val.validate(fields, [])
+    assert res["cleaned_fields"]["tax_amount"] == 61.59
+    assert res["cleaned_fields"]["subtotal"] == 769.92
+    assert res["cleaned_fields"]["total_amount"] == 831.51
+

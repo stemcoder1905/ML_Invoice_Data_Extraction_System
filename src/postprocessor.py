@@ -44,7 +44,9 @@ class InvoiceProcessor:
         text_lines = [" ".join(tok["clean_text"] for tok in line) for line in token_lines]
 
         # 1. Deterministic Candidate Extraction
-        rule_candidates = self.candidate_extractor.extract_candidates_from_text(full_text, text_lines)
+        rule_candidates = self.candidate_extractor.extract_candidates_from_text(
+            full_text, text_lines, tokens=tokens
+        )
 
         # 2. Traditional ML CRF Extraction
         crf_fields = {}

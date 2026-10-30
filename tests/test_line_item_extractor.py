@@ -44,3 +44,33 @@ def test_line_item_table_detection():
     assert items[1]["quantity"] == 1.0
     assert items[1]["unit_price"] == 25.0
     assert items[1]["total"] == 25.0
+
+
+def test_line_item_description_currency_filtering():
+    extractor = LineItemExtractor()
+    tokens = [
+        {"clean_text": "Description", "norm_bbox": [0.1, 0.4, 0.3, 0.42], "page_num": 1},
+        {"clean_text": "Quantity", "norm_bbox": [0.45, 0.4, 0.55, 0.42], "page_num": 1},
+        {"clean_text": "Rate", "norm_bbox": [0.65, 0.4, 0.75, 0.42], "page_num": 1},
+        {"clean_text": "Amount", "norm_bbox": [0.85, 0.4, 0.95, 0.42], "page_num": 1},
+        # Item with USD repeated in columns
+        {"clean_text": "Laptop", "norm_bbox": [0.1, 0.45, 0.18, 0.47], "page_num": 1},
+        {"clean_text": "stand", "norm_bbox": [0.19, 0.45, 0.28, 0.47], "page_num": 1},
+        {"clean_text": "8", "norm_bbox": [0.48, 0.45, 0.52, 0.47], "page_num": 1},
+        {"clean_text": "USD", "norm_bbox": [0.62, 0.45, 0.66, 0.47], "page_num": 1},
+        {"clean_text": "34.99", "norm_bbox": [0.67, 0.45, 0.74, 0.47], "page_num": 1},
+        {"clean_text": "USD", "norm_bbox": [0.82, 0.45, 0.86, 0.47], "page_num": 1},
+        {"clean_text": "279.92", "norm_bbox": [0.87, 0.45, 0.94, 0.47], "page_num": 1},
+        # Footer
+        {"clean_text": "Subtotal", "norm_bbox": [0.65, 0.60, 0.75, 0.62], "page_num": 1},
+        {"clean_text": "279.92", "norm_bbox": [0.85, 0.60, 0.95, 0.62], "page_num": 1},
+    ]
+
+    items = extractor.extract_line_items(tokens)
+    assert len(items) == 1
+    assert items[0]["description"] == "Laptop stand"
+    assert "USD" not in items[0]["description"]
+    assert items[0]["quantity"] == 8.0
+    assert items[0]["unit_price"] == 34.99
+    assert items[0]["total"] == 279.92
+
