@@ -1,15 +1,24 @@
 {
   "metadata": {
+    "evaluation_timestamp": "2026-10-30T11:34:18.234052",
+    "train_split_file": "D:\\OCR_project\\data\\splits\\train_docs.json",
     "test_split_file": "D:\\OCR_project\\data\\splits\\test_docs.json",
     "evaluated_documents_count": 8,
-    "evaluation_type": "held_out_document_level"
+    "train_documents_count": 17,
+    "test_documents_count": 8,
+    "evaluation_type": "held_out_document_level",
+    "zero_leakage_verified": true
   },
   "overall_summary": {
-    "micro_precision": 1.0,
-    "micro_recall": 1.0,
-    "micro_f1": 1.0,
-    "macro_f1": 1.0,
-    "total_ground_truth_fields": 80
+    "micro_precision": 0.9875,
+    "micro_recall": 0.9875,
+    "micro_f1": 0.9875,
+    "macro_f1": 0.9875,
+    "perfect_documents_accuracy": 0.875,
+    "total_ground_truth_fields": 80,
+    "total_tp": 79,
+    "total_fp": 1,
+    "total_fn": 1
   },
   "field_breakdown": {
     "invoice_number": {
@@ -17,77 +26,175 @@
       "recall": 1.0,
       "f1_score": 1.0,
       "exact_match_accuracy": 1.0,
-      "support": 8
+      "tp": 8,
+      "fp": 0,
+      "fn": 0,
+      "support": 8,
+      "exact_match_docs": 8
     },
     "invoice_date": {
       "precision": 1.0,
       "recall": 1.0,
       "f1_score": 1.0,
       "exact_match_accuracy": 1.0,
-      "support": 8
+      "tp": 8,
+      "fp": 0,
+      "fn": 0,
+      "support": 8,
+      "exact_match_docs": 8
     },
     "supplier_name": {
-      "precision": 1.0,
-      "recall": 1.0,
-      "f1_score": 1.0,
-      "exact_match_accuracy": 1.0,
-      "support": 8
+      "precision": 0.875,
+      "recall": 0.875,
+      "f1_score": 0.875,
+      "exact_match_accuracy": 0.875,
+      "tp": 7,
+      "fp": 1,
+      "fn": 1,
+      "support": 8,
+      "exact_match_docs": 7
     },
     "buyer_name": {
       "precision": 1.0,
       "recall": 1.0,
       "f1_score": 1.0,
       "exact_match_accuracy": 1.0,
-      "support": 8
+      "tp": 8,
+      "fp": 0,
+      "fn": 0,
+      "support": 8,
+      "exact_match_docs": 8
     },
     "purchase_order_number": {
       "precision": 1.0,
       "recall": 1.0,
       "f1_score": 1.0,
       "exact_match_accuracy": 1.0,
-      "support": 8
+      "tp": 8,
+      "fp": 0,
+      "fn": 0,
+      "support": 8,
+      "exact_match_docs": 8
     },
     "currency": {
       "precision": 1.0,
       "recall": 1.0,
       "f1_score": 1.0,
       "exact_match_accuracy": 1.0,
-      "support": 8
+      "tp": 8,
+      "fp": 0,
+      "fn": 0,
+      "support": 8,
+      "exact_match_docs": 8
     },
     "subtotal": {
       "precision": 1.0,
       "recall": 1.0,
       "f1_score": 1.0,
       "exact_match_accuracy": 1.0,
-      "support": 8
+      "tp": 8,
+      "fp": 0,
+      "fn": 0,
+      "support": 8,
+      "exact_match_docs": 8
     },
     "tax_amount": {
       "precision": 1.0,
       "recall": 1.0,
       "f1_score": 1.0,
       "exact_match_accuracy": 1.0,
-      "support": 8
+      "tp": 8,
+      "fp": 0,
+      "fn": 0,
+      "support": 8,
+      "exact_match_docs": 8
     },
     "total_amount": {
       "precision": 1.0,
       "recall": 1.0,
       "f1_score": 1.0,
       "exact_match_accuracy": 1.0,
-      "support": 8
+      "tp": 8,
+      "fp": 0,
+      "fn": 0,
+      "support": 8,
+      "exact_match_docs": 8
     },
     "tax_id": {
       "precision": 1.0,
       "recall": 1.0,
       "f1_score": 1.0,
       "exact_match_accuracy": 1.0,
-      "support": 8
+      "tp": 8,
+      "fp": 0,
+      "fn": 0,
+      "support": 8,
+      "exact_match_docs": 8
     }
   },
   "line_items_summary": {
     "ground_truth_items": 24,
     "extracted_items": 24,
+    "matched_items": 24,
+    "false_positives": 0,
+    "false_negatives": 0,
     "precision": 1.0,
     "recall": 1.0,
-    "f1": 1.0
+    "f1": 1.0,
+    "attribute_matches": {
+      "description": 24,
+      "quantity": 24,
+      "unit_price": 24,
+      "total": 24
+    }
+  },
+  "error_analysis": [
+    {
+      "document_id": "INV_0008",
+      "field": "supplier_name",
+      "ground_truth": "Quantum Precision Hardware Pvt Ltd",
+      "predicted": "Quantum Precision Hardware Pvt",
+      "error_category": "MISMATCH_VALUE",
+      "explanation": "Normalized predicted value 'Quantum Precision Hardware Pvt' did not match ground truth 'Quantum Precision Hardware Pvt Ltd'"
+    }
+  ],
+  "split_audit": {
+    "is_valid": true,
+    "train_count": 17,
+    "test_count": 8,
+    "total_unique_documents": 25,
+    "train_doc_ids": [
+      "INV_0002",
+      "INV_0003",
+      "INV_0004",
+      "INV_0007",
+      "INV_0009",
+      "INV_0010",
+      "INV_0011",
+      "INV_0012",
+      "INV_0013",
+      "INV_0015",
+      "INV_0016",
+      "INV_0017",
+      "INV_0018",
+      "INV_0019",
+      "INV_0022",
+      "INV_0023",
+      "INV_0024"
+    ],
+    "test_doc_ids": [
+      "INV_0001",
+      "INV_0005",
+      "INV_0006",
+      "INV_0008",
+      "INV_0014",
+      "INV_0020",
+      "INV_0021",
+      "INV_0025"
+    ],
+    "overlap_count": 0,
+    "overlap_doc_ids": [],
+    "errors": [],
+    "warnings": []
   }
 }

@@ -215,11 +215,11 @@ Opens the interactive web UI at `http://localhost:8501`.
 
 Tested on **8 held-out invoices** (80 target field instances, 24 line items):
 
-| Target Field | Precision | Recall | F1-Score | Exact Match |
+| Target Field | Precision | Recall | F1-Score | Exact Match Acc |
 | :--- | :---: | :---: | :---: | :---: |
 | `invoice_number` | **100.0%** | **100.0%** | **100.0%** | **100.0%** |
 | `invoice_date` | **100.0%** | **100.0%** | **100.0%** | **100.0%** |
-| `supplier_name` | **100.0%** | **100.0%** | **100.0%** | **100.0%** |
+| `supplier_name` | **87.5%** | **87.5%** | **87.5%** | **87.5%** |
 | `buyer_name` | **100.0%** | **100.0%** | **100.0%** | **100.0%** |
 | `purchase_order_number` | **100.0%** | **100.0%** | **100.0%** | **100.0%** |
 | `currency` | **100.0%** | **100.0%** | **100.0%** | **100.0%** |
@@ -227,10 +227,12 @@ Tested on **8 held-out invoices** (80 target field instances, 24 line items):
 | `tax_amount` | **100.0%** | **100.0%** | **100.0%** | **100.0%** |
 | `total_amount` | **100.0%** | **100.0%** | **100.0%** | **100.0%** |
 | `tax_id` (GSTIN) | **100.0%** | **100.0%** | **100.0%** | **100.0%** |
-| **OVERALL (Micro-Average)** | **100.0%** | **100.0%** | **100.0%** | **100.0%** |
+| **OVERALL (Micro-Average)** | **98.8%** | **98.8%** | **98.8%** | — |
+| **OVERALL (Macro-Average F1)** | — | — | **98.8%** | — |
+| **PERFECT DOCUMENT ACCURACY** | — | — | — | **87.5%** |
 
-- **Line-Item Table Metrics**: 24/24 line items matched (**100.0% Precision, 100.0% Recall, 100.0% F1**).
-- Full detailed breakdown in [docs/EVALUATION_REPORT.md](docs/EVALUATION_REPORT.md).
+- **Line-Item Table Metrics**: 24/24 line items matched using strict 1-to-1 bipartite matching (**100.0% Precision, 100.0% Recall, 100.0% F1**).
+- Full audited detailed breakdown and error analysis in [reports/evaluation_report.md](reports/evaluation_report.md) and [docs/EVALUATION_REPORT.md](docs/EVALUATION_REPORT.md).
 
 ---
 
