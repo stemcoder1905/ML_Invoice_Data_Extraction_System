@@ -236,3 +236,46 @@ def test_validator_detects_missing_tax_and_invalid_fields():
     assert res_math["is_valid"] is False
     assert any("mathematical" in err.lower() for err in res_math["errors"])
 
+
+def test_all_six_sample_invoices_exact_match(processor, loader, ocr):
+    """Verifies that all 6 invoices in six_sample_invoices match ground truth 100%."""
+    ref_path = Path("data/six_sample_invoices/ground_truth_reference.json")
+    if not ref_path.exists():
+        pytest.skip("six_sample_invoices ground truth not found")
+
+    with open(ref_path, "r", encoding="utf-8") as f:
+        gt_all = json.load(f)
+
+    for fname, gt in gt_all.items():
+        pdf_path = Path("data/six_sample_invoices") / fname
+        if not pdf_path.exists():
+            continue
+
+        doc = loader.load(pdf_path)
+        toks = ocr.extract_tokens(doc)
+        res = processor.process(doc, toks)
+        fields = res["fields"]
+        items = res["line_items"]
+        val = res["validation"]
+
+        assert fields["invoice_number"] == gt["invoice_number"], f"Failed on {fname} invoice_number"
+        assert fields["invoice_date"] == gt["invoice_date"], f"Failed on {fname} invoice_date"
+        assert fields["supplier_name"] == gt["supplier_name"], f"Failed on {fname} supplier_name"
+        assert fields["buyer_name"] == gt["buyer_name"], f"Failed on {fname} buyer_name"
+        assert fields["purchase_order_number"] == gt["purchase_order_number"], f"Failed on {fname} po_number"
+        assert fields["currency"] == gt["currency"], f"Failed on {fname} currency"
+        assert fields["subtotal"] == gt["subtotal"], f"Failed on {fname} subtotal"
+        assert fields["tax_amount"] == gt["tax_amount"], f"Failed on {fname} tax"
+        assert fields["total_amount"] == gt["total_amount"], f"Failed on {fname} total"
+        assert val["is_valid"] is True, f"Failed on {fname} validation"
+        assert len(val["errors"]) == 0, f"Failed on {fname} validation errors"
+
+        assert len(items) == len(gt["line_items"]), f"Failed on {fname} line items count"
+        for idx, exp_it in enumerate(gt["line_items"]):
+            got_it = items[idx]
+            assert got_it["description"] == exp_it["description"], f"Failed on {fname} item {idx} description"
+            assert got_it["quantity"] == float(exp_it["quantity"]), f"Failed on {fname} item {idx} quantity"
+            assert got_it["unit_price"] == float(exp_it["unit_price"]), f"Failed on {fname} item {idx} unit_price"
+            assert got_it["total"] == float(exp_it["total"]), f"Failed on {fname} item {idx} total"
+
+

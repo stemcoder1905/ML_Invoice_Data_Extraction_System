@@ -1,0 +1,176 @@
+{
+  "invoice_01_office_supplies.pdf": {
+    "invoice_number": "INV-2026-001",
+    "invoice_date": "2026-10-01",
+    "supplier_name": "Bright Office Supplies Pvt. Ltd.",
+    "supplier_gstin": "07AABCB1234C1Z5",
+    "supplier_address": "14 Connaught Place, New Delhi, Delhi 110001",
+    "buyer_name": "Northstar Analytics Pvt. Ltd.",
+    "buyer_gstin": "07AAACN5678D1Z2",
+    "buyer_address": "Sector 18, Gurugram, Haryana 122015",
+    "purchase_order_number": "PO-NS-1042",
+    "currency": "INR",
+    "subtotal": 3400.0,
+    "tax_amount": 612.0,
+    "total_amount": 4012.0,
+    "line_items": [
+      {
+        "description": "A4 Copier Paper (ream)",
+        "quantity": 10,
+        "unit_price": 250.0,
+        "total": 2500.0
+      },
+      {
+        "description": "Ballpoint Pens (box)",
+        "quantity": 5,
+        "unit_price": 180.0,
+        "total": 900.0
+      }
+    ]
+  },
+  "invoice_02_it_services.pdf": {
+    "invoice_number": "ITS-8841",
+    "invoice_date": "2026-10-05",
+    "supplier_name": "CloudBridge IT Services",
+    "supplier_gstin": "29AABCC2468F1Z7",
+    "supplier_address": "100 MG Road, Bengaluru, Karnataka 560001",
+    "buyer_name": "Maple Retail Solutions",
+    "buyer_gstin": "29AACCM1357G1Z4",
+    "buyer_address": "Whitefield, Bengaluru, Karnataka 560066",
+    "purchase_order_number": "MRS-PO-778",
+    "currency": "INR",
+    "subtotal": 18000.0,
+    "tax_amount": 3240.0,
+    "total_amount": 21240.0,
+    "line_items": [
+      {
+        "description": "Cloud Hosting - Monthly",
+        "quantity": 1,
+        "unit_price": 12000.0,
+        "total": 12000.0
+      },
+      {
+        "description": "Technical Support - 8 hours",
+        "quantity": 8,
+        "unit_price": 750.0,
+        "total": 6000.0
+      }
+    ]
+  },
+  "invoice_03_marketing.pdf": {
+    "invoice_number": "MKT/26/319",
+    "invoice_date": "2026-10-10",
+    "supplier_name": "BluePeak Creative Studio",
+    "supplier_gstin": "27AABCB9876H1Z3",
+    "supplier_address": "22 FC Road, Pune, Maharashtra 411004",
+    "buyer_name": "Evergreen Foods India Ltd.",
+    "buyer_gstin": "27AAACE4321J1Z8",
+    "buyer_address": "Andheri East, Mumbai, Maharashtra 400069",
+    "purchase_order_number": "EFI-2026-91",
+    "currency": "INR",
+    "subtotal": 20000.0,
+    "tax_amount": 3600.0,
+    "total_amount": 23600.0,
+    "line_items": [
+      {
+        "description": "Social Media Campaign",
+        "quantity": 1,
+        "unit_price": 15000.0,
+        "total": 15000.0
+      },
+      {
+        "description": "Promotional Design Assets",
+        "quantity": 4,
+        "unit_price": 1250.0,
+        "total": 5000.0
+      }
+    ]
+  },
+  "invoice_04_equipment.pdf": {
+    "invoice_number": "EQ-2026-572",
+    "invoice_date": "2026-10-15",
+    "supplier_name": "Apex Industrial Equipment",
+    "supplier_gstin": "24AABCA8642K1Z6",
+    "supplier_address": "Plot 8, GIDC Estate, Ahmedabad, Gujarat 382445",
+    "buyer_name": "Summit Manufacturing Works",
+    "buyer_gstin": "24AAACS2468L1Z1",
+    "buyer_address": "Vatva Industrial Area, Ahmedabad, Gujarat 382445",
+    "purchase_order_number": "SMW-PO-4502",
+    "currency": "INR",
+    "subtotal": 8000.0,
+    "tax_amount": 1440.0,
+    "total_amount": 9440.0,
+    "line_items": [
+      {
+        "description": "Digital Vernier Caliper",
+        "quantity": 2,
+        "unit_price": 3250.0,
+        "total": 6500.0
+      },
+      {
+        "description": "Safety Goggles",
+        "quantity": 10,
+        "unit_price": 150.0,
+        "total": 1500.0
+      }
+    ]
+  },
+  "invoice_05_consulting.pdf": {
+    "invoice_number": "CONS-26-044",
+    "invoice_date": "2026-10-20",
+    "supplier_name": "Redwood Business Consulting",
+    "supplier_gstin": "06AABCR7531M1Z9",
+    "supplier_address": "Tower B, Cyber City, Gurugram, Haryana 122002",
+    "buyer_name": "Cedar Health Products Pvt. Ltd.",
+    "buyer_gstin": "06AAACC8642N1Z5",
+    "buyer_address": "Industrial Area Phase I, Chandigarh 160002",
+    "purchase_order_number": "CHP-PO-230",
+    "currency": "INR",
+    "subtotal": 23000.0,
+    "tax_amount": 4140.0,
+    "total_amount": 27140.0,
+    "line_items": [
+      {
+        "description": "Process Review Workshop",
+        "quantity": 2,
+        "unit_price": 8500.0,
+        "total": 17000.0
+      },
+      {
+        "description": "Implementation Report",
+        "quantity": 1,
+        "unit_price": 6000.0,
+        "total": 6000.0
+      }
+    ]
+  },
+  "invoice_06_logistics.pdf": {
+    "invoice_number": "LOG-2026-118",
+    "invoice_date": "2026-10-25",
+    "supplier_name": "SwiftRoute Logistics Pvt. Ltd.",
+    "supplier_gstin": "09AABCS4321P1Z6",
+    "supplier_address": "Transport Nagar, Lucknow, Uttar Pradesh 226012",
+    "buyer_name": "Pioneer Components Ltd.",
+    "buyer_gstin": "09AAACP6789Q1Z3",
+    "buyer_address": "Industrial Area, Kanpur, Uttar Pradesh 208022",
+    "purchase_order_number": "PCL-PO-618",
+    "currency": "INR",
+    "subtotal": 8050.0,
+    "tax_amount": 1449.0,
+    "total_amount": 9499.0,
+    "line_items": [
+      {
+        "description": "Freight Charges",
+        "quantity": 3,
+        "unit_price": 2400.0,
+        "total": 7200.0
+      },
+      {
+        "description": "Loading and Handling",
+        "quantity": 1,
+        "unit_price": 850.0,
+        "total": 850.0
+      }
+    ]
+  }
+}

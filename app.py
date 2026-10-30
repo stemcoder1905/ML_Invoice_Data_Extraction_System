@@ -77,8 +77,11 @@ st.markdown(
 )
 
 
-@st.cache_resource
-def get_pipeline():
+PIPELINE_BUILD_VERSION = "2026.10.30.v5_exact_party_isolation"
+
+
+@st.cache_resource(show_spinner="Initializing ML & OCR Pipeline...")
+def get_pipeline(build_version: str = PIPELINE_BUILD_VERSION):
     """Initializes and caches the invoice processing pipeline."""
     loader = DocumentLoader()
     ocr = OCREngine()
@@ -103,6 +106,10 @@ st.sidebar.markdown(
 
 model_status = "✅ Trained & Active" if crf_model.is_trained() else "⚠️ Untrained (Fallback Mode)"
 st.sidebar.info(f"**Model Status:** {model_status}")
+
+if st.sidebar.button("🔄 Reload Pipeline / Clear Cache", help="Click to reload the latest model and processing pipeline."):
+    st.cache_resource.clear()
+    st.rerun()
 
 active_tab = st.sidebar.radio(
     "Navigation",
@@ -141,8 +148,9 @@ if active_tab == "Single Invoice Extraction":
     selected_name = "invoice"
 
     if uploaded_file is not None:
+        file_bytes = uploaded_file.getvalue()
         if uploaded_file.name.lower().endswith(".zip"):
-            extracted_items = DocumentLoader.extract_zip(uploaded_file.read())
+            extracted_items = DocumentLoader.extract_zip(file_bytes)
             if not extracted_items:
                 st.error("The uploaded ZIP archive does not contain any supported invoice files (.pdf, .png, .jpg, .jpeg).")
             else:
@@ -158,7 +166,7 @@ if active_tab == "Single Invoice Extraction":
                         selected_bytes = item_bytes
                         break
         else:
-            selected_bytes = uploaded_file.read()
+            selected_bytes = file_bytes
             selected_name = uploaded_file.name
     elif selected_sample != "-- None --":
         sample_path = INVOICES_DIR / selected_sample
@@ -274,8 +282,9 @@ elif active_tab == "Batch Processing":
     files_to_run = []
     if uploaded_files:
         for f in uploaded_files:
+            f_bytes = f.getvalue()
             if f.name.lower().endswith(".zip"):
-                extracted = DocumentLoader.extract_zip(f.read())
+                extracted = DocumentLoader.extract_zip(f_bytes)
                 if extracted:
                     st.info(f"📦 Extracted {len(extracted)} invoice(s) from ZIP archive: **{f.name}**")
                     for sub_name, sub_bytes in extracted:
@@ -283,7 +292,7 @@ elif active_tab == "Batch Processing":
                 else:
                     st.warning(f"⚠️ ZIP archive '{f.name}' contained no supported invoice files.")
             else:
-                files_to_run.append((f.name, f.read()))
+                files_to_run.append((f.name, f_bytes))
     elif run_sample_batch:
         demo_files = list(INVOICES_DIR.glob("*.pdf"))[:8]
         files_to_run = [(f.name, f.read_bytes()) for f in demo_files]
@@ -307,7 +316,11 @@ elif active_tab == "Batch Processing":
                     "metadata": {"filename": fname, "error": str(e)},
                     "fields": {},
                     "line_items": [],
-                    "validation": {"is_valid": False, "warnings": [str(e)]},
+                    "validation": {
+                        "is_valid": False,
+                        "errors": [f"Processing Exception: {str(e)}"],
+                        "warnings": [str(e)],
+                    },
                 })
             progress_bar.progress((idx + 1) / len(files_to_run))
 
