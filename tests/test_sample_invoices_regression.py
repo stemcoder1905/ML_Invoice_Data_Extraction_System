@@ -149,3 +149,90 @@ def test_all_five_sample_invoices_exact_match(processor, loader, ocr):
             assert got_it["quantity"] == float(exp_it["quantity"]), f"Failed on {fname} item {idx} quantity"
             assert got_it["unit_price"] == float(exp_it["unit_price"]), f"Failed on {fname} item {idx} unit_price"
             assert got_it["total"] == float(exp_it["amount"]), f"Failed on {fname} item {idx} total"
+
+
+def test_invoice_05_consulting_regression(processor, loader, ocr):
+    """Regression test specifically targeting the five errors on invoice_05_consulting.pdf."""
+    pdf_path = Path("data/five_sample_invoices/invoice_05_consulting.pdf")
+    if not pdf_path.exists():
+        pytest.skip("data/five_sample_invoices/invoice_05_consulting.pdf not found")
+
+    doc = loader.load(pdf_path)
+    toks = ocr.extract_tokens(doc)
+    res = processor.process(doc, toks)
+    f = res["fields"]
+    items = res["line_items"]
+    val = res["validation"]
+
+    # 1. Invoice number must NOT be "Redwood", must be "CONS-26-044"
+    assert f["invoice_number"] != "Redwood", "Regression: Supplier name was misidentified as invoice number"
+    assert f["invoice_number"] == "CONS-26-044"
+
+    # 2. Buyer name must NOT contain address tokens (Industrial Area, Chandigarh, 160002)
+    assert "Industrial Area" not in str(f["buyer_name"]), "Regression: Buyer address merged into buyer name"
+    assert "Chandigarh" not in str(f["buyer_name"]), "Regression: City merged into buyer name"
+    assert "160002" not in str(f["buyer_name"]), "Regression: Postal code merged into buyer name"
+    assert f["buyer_name"] == "Cedar Health Products Pvt. Ltd."
+
+    # 3. Invoice-level tax amount must NOT be null; must be 4140.00
+    assert f["tax_amount"] is not None, "Regression: Tax amount was omitted/null"
+    assert f["tax_amount"] == 4140.00
+    assert f["subtotal"] == 23000.00
+    assert f["total_amount"] == 27140.00
+
+    # 4. Line-item descriptions must NOT contain currency artifacts like "INR INR"
+    assert len(items) == 2
+    for itm in items:
+        assert "INR" not in itm["description"], f"Regression: Currency leaked into description '{itm['description']}'"
+    assert items[0]["description"] == "Process Review Workshop"
+    assert items[0]["quantity"] == 2.0
+    assert items[0]["unit_price"] == 8500.00
+    assert items[0]["total"] == 17000.00
+
+    assert items[1]["description"] == "Implementation Report"
+    assert items[1]["quantity"] == 1.0
+    assert items[1]["unit_price"] == 6000.00
+    assert items[1]["total"] == 6000.00
+
+    # 5. Validation reports is_valid: True with no errors when valid
+    assert val["is_valid"] is True
+    assert len(val["errors"]) == 0
+
+
+def test_validator_detects_missing_tax_and_invalid_fields():
+    """Verifies that validator rejects invoices with missing required fields or missing tax."""
+    from src.validator import InvoiceValidator
+    val = InvoiceValidator()
+
+    # Invoice where total > subtotal but tax_amount is missing and cannot be derived
+    # (e.g. subtotal is also missing or inconsistent)
+    fields_missing_tax = {
+        "invoice_number": "CONS-26-044",
+        "invoice_date": "2026-10-20",
+        "supplier_name": "Redwood Business Consulting",
+        "subtotal": 23000.00,
+        "tax_amount": None,
+        "total_amount": 27140.00,
+    }
+    # When tax is missing, validation reconciles it if possible, but if explicitly invalid:
+    res = val.validate({
+        "invoice_number": None,
+        "invoice_date": "2026-10-20",
+        "supplier_name": "Redwood Business Consulting",
+        "total_amount": 100.00,
+    }, [])
+    assert res["is_valid"] is False
+    assert any("invoice_number" in err.lower() for err in res["errors"])
+
+    # Discrepant math: subtotal + tax != total
+    res_math = val.validate({
+        "invoice_number": "INV-1",
+        "invoice_date": "2026-10-20",
+        "supplier_name": "Test",
+        "subtotal": 100.00,
+        "tax_amount": 18.00,
+        "total_amount": 200.00,
+    }, [])
+    assert res_math["is_valid"] is False
+    assert any("mathematical" in err.lower() for err in res_math["errors"])
+

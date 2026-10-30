@@ -177,9 +177,7 @@ class LineItemExtractor:
 
         raw_desc = " ".join(desc_tokens).strip()
         # Clean currency codes and punctuation artifact from description
-        clean_desc = re.sub(r"\b(?:USD|EUR|INR|GBP|CAD|SGD|AUD|JPY|CHF|CNY)\b", "", raw_desc).strip()
-        clean_desc = re.sub(r"\s+", " ", clean_desc).strip(" -:;,")
-        item["description"] = clean_desc
+        item["description"] = self._clean_item_description(raw_desc)
 
         if numbers_with_x:
             numbers_with_x.sort(key=lambda n: n[0])
@@ -271,7 +269,8 @@ class LineItemExtractor:
 
             if numeric_indices:
                 first_num_idx = numeric_indices[0][0]
-                desc = " ".join(words[:first_num_idx]).strip()
+                raw_desc = " ".join(words[:first_num_idx]).strip()
+                desc = self._clean_item_description(raw_desc)
                 if not desc or len(desc) < 2:
                     continue
 
@@ -288,6 +287,16 @@ class LineItemExtractor:
                     items.append(item)
 
         return items
+
+    @staticmethod
+    def _clean_item_description(desc: str) -> str:
+        """Strips currency column artifacts (e.g. INR INR, USD, symbols) while preserving words and numbers."""
+        if not desc:
+            return ""
+        s = re.sub(r"(?i)\b(?:USD|EUR|INR|GBP|CAD|SGD|AUD|JPY|CHF|CNY|RS|RS\.)\b", " ", desc)
+        s = re.sub(r"[\$€£₹¥]", " ", s)
+        s = re.sub(r"\s+", " ", s).strip(" -:;,\t")
+        return s
 
     @staticmethod
     def _is_float(val: str) -> bool:

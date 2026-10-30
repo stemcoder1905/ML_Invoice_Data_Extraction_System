@@ -31,12 +31,16 @@ class InvoiceValidator:
         # 1. Mandatory Field Checks
         if not cleaned.get("invoice_number"):
             warnings.append("Missing 'invoice_number': Could not identify invoice identifier.")
+            errors.append("Validation Failure: Missing mandatory field 'invoice_number'.")
         if not cleaned.get("invoice_date"):
             warnings.append("Missing 'invoice_date': Could not identify issue date.")
+            errors.append("Validation Failure: Missing mandatory field 'invoice_date'.")
         if not cleaned.get("total_amount"):
             warnings.append("Missing 'total_amount': Total invoice value is absent.")
+            errors.append("Validation Failure: Missing mandatory field 'total_amount'.")
         if not cleaned.get("supplier_name"):
             warnings.append("Missing 'supplier_name': Vendor or seller was not detected.")
+            errors.append("Validation Failure: Missing mandatory field 'supplier_name'.")
 
         # 2. Date Normalization & Validation
         if cleaned.get("invoice_date"):
@@ -99,15 +103,21 @@ class InvoiceValidator:
             expected_total = subtotal_val + tax_val
             diff = abs(expected_total - total_val)
             if diff > self.tolerance:
-                warnings.append(
+                msg = (
                     f"Mathematical Discrepancy: Subtotal ({subtotal_val:.2f}) + Tax ({tax_val:.2f}) "
                     f"= {expected_total:.2f}, but Total is {total_val:.2f} (diff: {diff:.2f})."
                 )
+                warnings.append(msg)
+                errors.append(f"Validation Failure: {msg}")
         elif subtotal_val is not None and total_val is not None and tax_val is None:
             if total_val < subtotal_val:
-                warnings.append(
-                    f"Logical Discrepancy: Total amount ({total_val:.2f}) is strictly less than subtotal ({subtotal_val:.2f})."
-                )
+                msg = f"Logical Discrepancy: Total amount ({total_val:.2f}) is strictly less than subtotal ({subtotal_val:.2f})."
+                warnings.append(msg)
+                errors.append(f"Validation Failure: {msg}")
+            elif total_val > subtotal_val:
+                msg = "Missing Tax Amount: Total invoice value exceeds subtotal but tax amount was not extracted or derived."
+                warnings.append(msg)
+                errors.append(f"Validation Failure: {msg}")
 
         # 7. Line Item Validation & Cross-Reconciliation
         cleaned_items, item_warnings = self._validate_line_items(line_items)
@@ -129,7 +139,7 @@ class InvoiceValidator:
                         f"Line items sum ({items_sum:.2f}) deviates from extracted total ({total_val:.2f})."
                     )
 
-        is_valid = len(errors) == 0 and len(warnings) <= 2 and total_val is not None
+        is_valid = len(errors) == 0 and total_val is not None and total_val > 0
 
         return {
             "is_valid": is_valid,
@@ -192,6 +202,10 @@ class InvoiceValidator:
 
         for idx, itm in enumerate(items):
             desc = str(itm.get("description", "")).strip()
+            # Clean currency column artifacts without stripping meaningful words or numbers
+            desc = re.sub(r"(?i)\b(?:USD|EUR|INR|GBP|CAD|SGD|AUD|JPY|CHF|CNY|RS|RS\.)\b", " ", desc)
+            desc = re.sub(r"[\$€£₹¥]", " ", desc)
+            desc = re.sub(r"\s+", " ", desc).strip(" -:;,\t")
             qty = self._parse_numeric(itm.get("quantity")) or 1.0
             price = self._parse_numeric(itm.get("unit_price"))
             tax_rate = self._parse_numeric(itm.get("tax_rate"))
