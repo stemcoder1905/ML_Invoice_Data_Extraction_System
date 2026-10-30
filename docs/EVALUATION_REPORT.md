@@ -1,6 +1,6 @@
 # Audited Evaluation Report: ML-Based Invoice Data Extraction System
 
-**Generated:** 2026-10-30T14:10:53.769463  
+**Generated:** 2026-10-30T15:25:45.204968  
 **Evaluation Mode:** Strict Held-Out Document-Level Split (Zero-Leakage Verified: `True`)  
 
 ---

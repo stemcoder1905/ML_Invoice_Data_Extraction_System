@@ -18,7 +18,7 @@ class LineItemExtractor:
             "quantity": ["qty", "quantity", "qnty", "units", "count", "hrs", "hours"],
             "unit_price": ["rate", "price", "unit price", "unit_price", "unit cost", "cost"],
             "tax": ["tax", "tax %", "tax rate", "gst", "vat", "cgst", "sgst", "igst"],
-            "total": ["amount", "total", "line total", "net amount", "total amt"],
+            "total": ["amount", "total", "line total", "net amount", "total amt", "line total incl. tax"],
         }
         self.table_end_keywords = [
             "subtotal", "sub total", "sub-total", "taxable amount",
@@ -183,53 +183,64 @@ class LineItemExtractor:
 
         if numbers_with_x:
             numbers_with_x.sort(key=lambda n: n[0])
-
-            # Try to assign by spatial column proximity
-            assigned_indices = set()
-
-            if q_pos is not None:
-                # Find closest number to q_pos
-                cand_idx = min(range(len(numbers_with_x)), key=lambda i: abs(numbers_with_x[i][0] - q_pos))
-                if abs(numbers_with_x[cand_idx][0] - q_pos) < 0.12 and cand_idx not in assigned_indices:
-                    item["quantity"] = numbers_with_x[cand_idx][1]
-                    assigned_indices.add(cand_idx)
-
-            if tot_pos is not None:
-                # Total is typically furthest right or closest to tot_pos
-                cand_idx = min(range(len(numbers_with_x)), key=lambda i: abs(numbers_with_x[i][0] - tot_pos))
-                if abs(numbers_with_x[cand_idx][0] - tot_pos) < 0.12 and cand_idx not in assigned_indices:
-                    item["total"] = numbers_with_x[cand_idx][1]
-                    assigned_indices.add(cand_idx)
-
-            if p_pos is not None:
-                # Unit price
-                cand_idx = min(range(len(numbers_with_x)), key=lambda i: abs(numbers_with_x[i][0] - p_pos))
-                if abs(numbers_with_x[cand_idx][0] - p_pos) < 0.12 and cand_idx not in assigned_indices:
-                    item["unit_price"] = numbers_with_x[cand_idx][1]
-                    assigned_indices.add(cand_idx)
-
-            if tax_pos is not None:
-                cand_idx = min(range(len(numbers_with_x)), key=lambda i: abs(numbers_with_x[i][0] - tax_pos))
-                if abs(numbers_with_x[cand_idx][0] - tax_pos) < 0.12 and cand_idx not in assigned_indices:
-                    item["tax_amount"] = numbers_with_x[cand_idx][1]
-                    assigned_indices.add(cand_idx)
-
-            # Fallback to standard left-to-right order for unassigned items
             num_vals = [n[1] for n in numbers_with_x]
-            if item["total"] is None and num_vals:
-                item["total"] = num_vals[-1]
 
-            if item["quantity"] is None:
-                if len(num_vals) >= 2:
-                    item["quantity"] = num_vals[0]
-                elif len(num_vals) == 1:
-                    item["quantity"] = 1.0
+            # Direct mapping for standard multi-column tables
+            if len(num_vals) == 4 and tax_pos is not None:
+                item["quantity"] = num_vals[0]
+                item["unit_price"] = num_vals[1]
+                item["tax_amount"] = num_vals[2]
+                item["total"] = num_vals[3]
+            elif len(num_vals) == 3 and tax_pos is None:
+                item["quantity"] = num_vals[0]
+                item["unit_price"] = num_vals[1]
+                item["total"] = num_vals[2]
+            else:
+                # Try to assign by spatial column proximity
+                assigned_indices = set()
 
-            if item["unit_price"] is None:
-                if len(num_vals) >= 3:
-                    item["unit_price"] = num_vals[1]
-                elif item["total"] is not None and item["quantity"] is not None and item["quantity"] > 0:
-                    item["unit_price"] = round(item["total"] / item["quantity"], 2)
+                if q_pos is not None:
+                    # Find closest number to q_pos
+                    cand_idx = min(range(len(numbers_with_x)), key=lambda i: abs(numbers_with_x[i][0] - q_pos))
+                    if abs(numbers_with_x[cand_idx][0] - q_pos) < 0.12 and cand_idx not in assigned_indices:
+                        item["quantity"] = numbers_with_x[cand_idx][1]
+                        assigned_indices.add(cand_idx)
+
+                if tot_pos is not None:
+                    # Total is typically furthest right or closest to tot_pos
+                    cand_idx = min(range(len(numbers_with_x)), key=lambda i: abs(numbers_with_x[i][0] - tot_pos))
+                    if abs(numbers_with_x[cand_idx][0] - tot_pos) < 0.12 and cand_idx not in assigned_indices:
+                        item["total"] = numbers_with_x[cand_idx][1]
+                        assigned_indices.add(cand_idx)
+
+                if p_pos is not None:
+                    # Unit price
+                    cand_idx = min(range(len(numbers_with_x)), key=lambda i: abs(numbers_with_x[i][0] - p_pos))
+                    if abs(numbers_with_x[cand_idx][0] - p_pos) < 0.12 and cand_idx not in assigned_indices:
+                        item["unit_price"] = numbers_with_x[cand_idx][1]
+                        assigned_indices.add(cand_idx)
+
+                if tax_pos is not None:
+                    cand_idx = min(range(len(numbers_with_x)), key=lambda i: abs(numbers_with_x[i][0] - tax_pos))
+                    if abs(numbers_with_x[cand_idx][0] - tax_pos) < 0.12 and cand_idx not in assigned_indices:
+                        item["tax_amount"] = numbers_with_x[cand_idx][1]
+                        assigned_indices.add(cand_idx)
+
+                # Fallback to standard left-to-right order for unassigned items
+                if item["total"] is None and num_vals:
+                    item["total"] = num_vals[-1]
+
+                if item["quantity"] is None:
+                    if len(num_vals) >= 2:
+                        item["quantity"] = num_vals[0]
+                    elif len(num_vals) == 1:
+                        item["quantity"] = 1.0
+
+                if item["unit_price"] is None:
+                    if len(num_vals) >= 3:
+                        item["unit_price"] = num_vals[1]
+                    elif item["total"] is not None and item["quantity"] is not None and item["quantity"] > 0:
+                        item["unit_price"] = round(item["total"] / item["quantity"], 2)
 
         return item
 

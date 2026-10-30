@@ -6,10 +6,11 @@ applies quality validation, and determines processing provenance.
 
 from typing import Dict, Any, List, Optional
 import time
+import re
 
 from src.config import TARGET_FIELDS
 from src.ml_extractor import InvoiceCRFExtractor
-from src.candidate_extractor import CandidateExtractor
+from src.candidate_extractor import CandidateExtractor, deduplicate_phrase, REJECT_PARTY_NAMES, INVALID_INV_NUMS
 from src.line_item_extractor import LineItemExtractor
 from src.validator import InvoiceValidator
 
@@ -22,6 +23,32 @@ class InvoiceProcessor:
         self.candidate_extractor = CandidateExtractor()
         self.line_item_extractor = LineItemExtractor()
         self.validator = InvoiceValidator()
+
+    def _sanitize_party(self, val: Any) -> Optional[str]:
+        if not val:
+            return None
+        s = str(val).strip()
+        s = re.sub(
+            r"(?i)^(?:supplier\s+invoice\s+details|supplier|bill\s+to|ship\s+to|billed\s+to|customer|buyer)\s*[:#\-]?\s*",
+            "",
+            s,
+        ).strip()
+        s = deduplicate_phrase(s)
+        if s.upper() in REJECT_PARTY_NAMES or len(s) < 2:
+            return None
+        return s
+
+    def _sanitize_inv_num(self, val: Any) -> Optional[str]:
+        if not val:
+            return None
+        s = str(val).strip().strip(":#-.,")
+        if s.upper() in INVALID_INV_NUMS:
+            return None
+        if s.lower().startswith(("synthetic", "sample", "tax", "date", "bill", "invoice")):
+            return None
+        if s.isalpha() and len(s) > 4:
+            return None
+        return s
 
     def process(
         self,
@@ -62,20 +89,43 @@ class InvoiceProcessor:
             except Exception as e:
                 crf_fields = {}
 
-        # 3. Hybrid Merge (Complementary rules for fields CRF missed or unconfident on)
+        # 3. Hybrid Merge (Complementary rules for fields CRF missed or where CRF predicted noise)
         final_fields: Dict[str, Any] = {}
         for field in TARGET_FIELDS:
             crf_val = crf_fields.get(field)
             rule_val = rule_candidates.get(field)
 
-            if crf_val is not None and str(crf_val).strip() != "":
-                final_fields[field] = crf_val
-            elif rule_val is not None:
-                final_fields[field] = rule_val
-                if model_trained and extraction_method == "crf_ml":
-                    extraction_method = "hybrid_crf_rules"
+            if field in ("supplier_name", "buyer_name"):
+                c_clean = self._sanitize_party(crf_val)
+                r_clean = self._sanitize_party(rule_val)
+                if r_clean and (
+                    not c_clean
+                    or any(k in str(crf_val).upper() for k in ["INVOICE", "DETAILS", "SUPPLIER", "BILL TO", "SHIP TO"])
+                ):
+                    final_fields[field] = r_clean
+                elif c_clean:
+                    final_fields[field] = c_clean
+                else:
+                    final_fields[field] = r_clean
+            elif field == "invoice_number":
+                c_inv = self._sanitize_inv_num(crf_val)
+                r_inv = self._sanitize_inv_num(rule_val)
+                if c_inv is not None:
+                    final_fields[field] = c_inv
+                elif r_inv is not None:
+                    final_fields[field] = r_inv
+                else:
+                    final_fields[field] = None
             else:
-                final_fields[field] = None
+                if crf_val is not None and str(crf_val).strip() != "":
+                    final_fields[field] = crf_val
+                elif rule_val is not None:
+                    final_fields[field] = rule_val
+                else:
+                    final_fields[field] = None
+
+            if final_fields[field] == rule_val and crf_val != rule_val and model_trained and extraction_method == "crf_ml":
+                extraction_method = "hybrid_crf_rules"
 
         # 4. Table / Line-Item Extraction
         extracted_line_items = self.line_item_extractor.extract_line_items(tokens)

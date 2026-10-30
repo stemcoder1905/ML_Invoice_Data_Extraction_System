@@ -99,14 +99,14 @@ PATTERNS = {
     # Generic Tax ID / VAT / EIN / Tax Reg format
     "tax_id": r"\b(?:TAX\s*(?:ID|NO|#)?|VAT\s*(?:NO|#)?|EIN|GSTIN|GST)\s*[:#\-]?\s*([A-Z0-9\-]{7,18})\b",
     
-    # Invoice Number patterns
-    "invoice_number": r"(?i)\b(?:invoice|inv|bill)\s*(?:no|number|num|#)?\s*[:#\-]?\s*([A-Za-z0-9\-_/]{3,25})\b",
+    # Invoice Number patterns (labeled match preferred)
+    "invoice_number": r"(?i)\b(?:invoice|inv|bill)\s*(?:no\.?|number|num\.?|#)\s*[:#\-]?\s*([A-Za-z0-9\-_/]{3,25})\b",
     
     # Purchase Order patterns
     "po_number": r"(?i)\b(?:purchase\s*order|p\.?o\.?\s*(?:no|number|#)?)\s*[:#\-]?\s*(PO-[A-Za-z0-9\-_/]+|[A-Za-z0-9\-_/]{3,20})\b",
     
-    # Date formats (DD/MM/YYYY, DD-MM-YYYY, YYYY-MM-DD, Month DD, YYYY, etc.)
-    "date": r"\b(?:\d{1,2}[-/\.]\d{1,2}[-/\.]\d{2,4}|\d{4}[-/\.]\d{1,2}[-/\.]\d{1,2}|(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*[\s,]+\d{1,2}(?:st|nd|rd|th)?[\s,]+\d{4}|\d{1,2}(?:st|nd|rd|th)?[\s,]+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*[\s,]+\d{4})\b",
+    # Date formats (DD/MM/YYYY, DD-MM-YYYY, YYYY-MM-DD, 24-Oct-2026, Month DD, YYYY, etc.)
+    "date": r"\b(?:\d{1,2}[-/\.]\d{1,2}[-/\.]\d{2,4}|\d{4}[-/\.]\d{1,2}[-/\.]\d{1,2}|(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*[\s,\-]+\d{1,2}(?:st|nd|rd|th)?[\s,\-]+\d{2,4}|\d{1,2}(?:st|nd|rd|th)?[\s,\-]+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*[\s,\-]+\d{2,4})\b",
     
     # Currency symbols & codes
     "currency_code": r"\b(USD|EUR|GBP|INR|CAD|AUD|SGD|JPY|CNY|CHF|NZD)\b",
