@@ -63,7 +63,7 @@ class LineItemExtractor:
 
         return extracted_items
 
-    def _group_tokens_by_y(self, tokens: List[Dict[str, Any]], y_thresh: float = 0.012) -> List[List[Dict[str, Any]]]:
+    def _group_tokens_by_y(self, tokens: List[Dict[str, Any]], y_thresh: float = 0.007) -> List[List[Dict[str, Any]]]:
         """Clusters tokens into lines by vertical coordinate."""
         sorted_toks = sorted(tokens, key=lambda t: (t.get("page_num", 1), t["norm_bbox"][1], t["norm_bbox"][0]))
         lines: List[List[Dict[str, Any]]] = []
