@@ -20,7 +20,6 @@ from src.postprocessor import InvoiceProcessor
 from src.ml_extractor import InvoiceCRFExtractor
 from src.exporter import InvoiceJSONExporter, sanitize_for_json
 from src.batch_processor import BatchProcessor
-from evaluate import evaluate_test_set
 
 
 st.set_page_config(
@@ -113,13 +112,7 @@ if st.sidebar.button("🔄 Reload Pipeline / Clear Cache", help="Click to reload
 
 active_tab = st.sidebar.radio(
     "Navigation",
-    ["Single Invoice Extraction", "Batch Processing", "Model Evaluation", "Architecture & Docs"],
-)
-
-st.sidebar.markdown("---")
-st.sidebar.markdown(
-    "<small>ML Intern Assessment Project<br>Production-Oriented Invoice Extraction</small>",
-    unsafe_allow_html=True,
+    ["Single Invoice Extraction", "Batch Processing"],
 )
 
 # Tab 1: Single Invoice Extraction
@@ -367,137 +360,3 @@ elif active_tab == "Batch Processing":
             mime="application/zip",
         )
 
-# Tab 3: Model Evaluation
-elif active_tab == "Model Evaluation":
-    st.markdown('<div class="main-header">Model Performance & Evaluation</div>', unsafe_allow_html=True)
-    st.markdown(
-        "Strictly evaluated on a held-out test split of annotated invoices (zero token leakage). "
-        "All metrics are calculated directly from ground-truth comparisons."
-    )
-
-    eval_report_path = Path("output") / "evaluation_report.json"
-
-    if st.button("⚡ Re-run Evaluation on Held-Out Test Set"):
-        with st.spinner("Running evaluation over test invoices..."):
-            eval_data = evaluate_test_set(output_report_file=eval_report_path)
-            st.success("Evaluation completed.")
-    elif eval_report_path.exists():
-        with open(eval_report_path, "r", encoding="utf-8") as f:
-            eval_data = json.load(f)
-    else:
-        st.info("No existing evaluation report found. Click the button above to run evaluation.")
-        eval_data = None
-
-    if eval_data:
-        summary = eval_data.get("overall_summary", {})
-        c1, c2, c3, c4 = st.columns(4)
-        c1.metric("Micro Precision", f"{summary.get('micro_precision', 0.0)*100:.1f}%")
-        c2.metric("Micro Recall", f"{summary.get('micro_recall', 0.0)*100:.1f}%")
-        c3.metric("Micro F1-Score", f"{summary.get('micro_f1', 0.0)*100:.1f}%")
-        c4.metric("Macro F1-Score", f"{summary.get('macro_f1', 0.0)*100:.1f}%")
-
-        st.subheader("📋 Field-Level Metric Breakdown")
-        field_breakdown = eval_data.get("field_breakdown", {})
-        breakdown_rows = []
-        for field, metrics in field_breakdown.items():
-            breakdown_rows.append({
-                "Field Name": field,
-                "Precision": f"{metrics['precision']*100:.1f}%",
-                "Recall": f"{metrics['recall']*100:.1f}%",
-                "F1-Score": f"{metrics['f1_score']*100:.1f}%",
-                "Exact Match Accuracy": f"{metrics['exact_match_accuracy']*100:.1f}%",
-                "Support": metrics["support"],
-            })
-        st.dataframe(pd.DataFrame(breakdown_rows), use_container_width=True)
-
-        st.subheader("📑 Tabular Line-Item Extraction Metrics")
-        li_metrics = eval_data.get("line_items_summary", {})
-        l1, l2, l3, l4 = st.columns(4)
-        l1.metric("Ground Truth Items", li_metrics.get("ground_truth_items", 0))
-        l2.metric("Extracted Items", li_metrics.get("extracted_items", 0))
-        l3.metric("Precision", f"{li_metrics.get('precision', 0.0)*100:.1f}%")
-        l4.metric("Recall / F1", f"{li_metrics.get('f1', 0.0)*100:.1f}%")
-
-# Tab 4: Architecture & Docs
-elif active_tab == "Architecture & Docs":
-    st.markdown('<div class="main-header">System Architecture & ML Methodology</div>', unsafe_allow_html=True)
-
-    st.markdown(
-        """
-        ### 🏛️ Pipeline Overview
-        This invoice data extraction system strictly utilizes **Traditional Machine Learning & OCR** techniques.
-        No Generative AI, Large Language Models (LLMs), or black-box vision APIs are utilized.
-        """
-    )
-
-    st.markdown(
-        """
-        ```
-        +-------------------------------------------------------------+
-        |                    INVOICE DOCUMENT                         |
-        |              (Digital PDF / Scanned PDF / Image)            |
-        +-------------------------------------------------------------+
-                                      |
-                                      v
-        +-------------------------------------------------------------+
-        |                 OPENCV PREPROCESSING ENGINE                 |
-        |   - Aspect-preserving resize                                |
-        |   - Grayscale conversion                                    |
-        |   - Gaussian / Bilateral noise filtering                    |
-        |   - Skew angle detection (minAreaRect) & deskew rotation    |
-        |   - Otsu & Adaptive binarization                            |
-        +-------------------------------------------------------------+
-                                      |
-                                      v
-        +-------------------------------------------------------------+
-        |             OCR & WORD BOUNDING BOX EXTRACTION              |
-        |   - Digital PDFs: PyMuPDF lossless native word tokens       |
-        |   - Scanned Images: Tesseract OCR (pytesseract word boxes)  |
-        |   - Normalized coordinates [0.0, 1.0] & natural reading order|
-        +-------------------------------------------------------------+
-                                      |
-                                      v
-        +-------------------------------------------------------------+
-        |                 FEATURE ENGINEERING PIPELINE                |
-        |   - Lexical: text lower, length, prefixes, suffixes         |
-        |   - Orthographic: shape pattern (e.g. XXX-9999), isupper    |
-        |   - Domain Lexicons: invoice, date, total, tax, vendor flags|
-        |   - Positional: normalized x0, y0, page regions, bins       |
-        |   - Contextual: -2, -1, +1, +2 window tokens & spatial gaps |
-        +-------------------------------------------------------------+
-                        |                             |
-                        v                             v
-        +-----------------------------+ +-----------------------------+
-        |      TRADITIONAL ML:        | |   LINE ITEM TABLE EXTRACTOR |
-        |   CONDITIONAL RANDOM FIELDS | | - Horizontal line grouping  |
-        |   (CRF Sequence Tagging)    | | - Column header spans       |
-        |   - BIO entity tagging      | | - Row coordinate clustering |
-        |   - Model: lbfgs, c1, c2    | | - Arithmetic reconciliation |
-        +-----------------------------+ +-----------------------------+
-                        |                             |
-                        +--------------+--------------+
-                                       |
-                                       v
-        +-------------------------------------------------------------+
-        |             HYBRID MERGE & RULE COMPLEMENTATION             |
-        |   - Merges CRF entity spans with regex candidate extractors |
-        |   - Discloses provenance (crf_ml / hybrid / fallback)       |
-        +-------------------------------------------------------------+
-                                       |
-                                       v
-        +-------------------------------------------------------------+
-        |              FINANCIAL VALIDATION & QA ENGINE               |
-        |   - GSTIN format checksum check                             |
-        |   - Date parsing (ISO YYYY-MM-DD normalization)             |
-        |   - Subtotal + Tax == Total mathematical consistency check  |
-        |   - Line item sum reconciliation                            |
-        +-------------------------------------------------------------+
-                                       |
-                                       v
-        +-------------------------------------------------------------+
-        |                    RFC-COMPLIANT JSON EXPORT                |
-        |   - Standardized fields, line items, validation & metadata  |
-        +-------------------------------------------------------------+
-        ```
-        """
-    )
