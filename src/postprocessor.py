@@ -116,6 +116,56 @@ class InvoiceProcessor:
                     final_fields[field] = r_inv
                 else:
                     final_fields[field] = None
+            elif field == "tax_id":
+                c_tax = str(crf_val).strip() if crf_val is not None else ""
+                r_tax = str(rule_val).strip() if rule_val is not None else ""
+                # Tax ID / GSTIN cannot contain @ (email) and should be alphanumeric
+                is_valid_c = bool(c_tax and "@" not in c_tax and re.match(r"^[A-Z0-9\-\/]{7,25}$", c_tax, re.I))
+                is_valid_r = bool(r_tax and "@" not in r_tax and re.match(r"^[A-Z0-9\-\/]{7,25}$", r_tax, re.I))
+                # Prefer GSTIN if available
+                if is_valid_r and re.match(r"^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$", r_tax):
+                    final_fields[field] = r_tax
+                elif is_valid_c and re.match(r"^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$", c_tax):
+                    final_fields[field] = c_tax
+                elif is_valid_r:
+                    final_fields[field] = r_tax
+                elif is_valid_c:
+                    final_fields[field] = c_tax
+                else:
+                    final_fields[field] = None
+            elif field == "purchase_order_number":
+                c_po = str(crf_val).strip() if crf_val is not None else ""
+                r_po = str(rule_val).strip() if rule_val is not None else ""
+                # PO cannot be a date format
+                is_date_c = bool(re.match(r"^\d{1,4}[-/\.]\d{1,2}[-/\.]\d{2,4}$", c_po))
+                is_date_r = bool(re.match(r"^\d{1,4}[-/\.]\d{1,2}[-/\.]\d{2,4}$", r_po))
+                is_valid_c = bool(c_po and not is_date_c and len(c_po) >= 3 and not c_po.lower().startswith(("inv", "tax", "date", "bill")))
+                is_valid_r = bool(r_po and not is_date_r and len(r_po) >= 3 and not r_po.lower().startswith(("inv", "tax", "date", "bill")))
+                if is_valid_r:
+                    final_fields[field] = r_po
+                elif is_valid_c:
+                    final_fields[field] = c_po
+                else:
+                    final_fields[field] = None
+            elif field in ("subtotal", "tax_amount", "total_amount"):
+                # Numeric fields: reject huge numbers (>10^7) or non-numeric
+                def _to_float(v):
+                    if v is None:
+                        return None
+                    try:
+                        clean = re.sub(r"[^\d\.]", "", str(v).replace(",", ""))
+                        flt = float(clean)
+                        return flt if 0.0 <= flt <= 10000000.0 else None
+                    except Exception:
+                        return None
+                c_num = _to_float(crf_val)
+                r_num = _to_float(rule_val)
+                if r_num is not None:
+                    final_fields[field] = r_num
+                elif c_num is not None:
+                    final_fields[field] = c_num
+                else:
+                    final_fields[field] = None
             else:
                 if crf_val is not None and str(crf_val).strip() != "":
                     final_fields[field] = crf_val

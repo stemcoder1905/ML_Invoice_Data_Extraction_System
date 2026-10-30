@@ -128,13 +128,20 @@ class InvoiceValidator:
             items_sum = sum(
                 item["total"] for item in cleaned_items if item.get("total") is not None
             )
-            if subtotal_val is not None:
-                if abs(items_sum - subtotal_val) > (len(cleaned_items) * 0.10):
+            taxable_sum = sum(
+                item.get("taxable_amount") for item in cleaned_items if item.get("taxable_amount") is not None
+            )
+            tol = max(0.20, len(cleaned_items) * 0.10)
+            matches_subtotal = subtotal_val is not None and abs(items_sum - subtotal_val) <= tol
+            matches_total = total_val is not None and abs(items_sum - total_val) <= tol
+            taxable_matches_subtotal = subtotal_val is not None and taxable_sum > 0 and abs(taxable_sum - subtotal_val) <= tol
+
+            if not (matches_subtotal or matches_total or taxable_matches_subtotal):
+                if subtotal_val is not None:
                     warnings.append(
                         f"Line items sum ({items_sum:.2f}) deviates from extracted subtotal ({subtotal_val:.2f})."
                     )
-            elif total_val is not None and tax_val is None:
-                if abs(items_sum - total_val) > (len(cleaned_items) * 0.10):
+                elif total_val is not None and tax_val is None:
                     warnings.append(
                         f"Line items sum ({items_sum:.2f}) deviates from extracted total ({total_val:.2f})."
                     )
@@ -210,6 +217,7 @@ class InvoiceValidator:
             price = self._parse_numeric(itm.get("unit_price"))
             tax_rate = self._parse_numeric(itm.get("tax_rate"))
             tax_amt = self._parse_numeric(itm.get("tax_amount"))
+            taxable_amt = self._parse_numeric(itm.get("taxable_amount"))
             tot = self._parse_numeric(itm.get("total"))
 
             # Derive total if missing
@@ -222,7 +230,7 @@ class InvoiceValidator:
             # Check math: qty * price == tot
             if price is not None and tot is not None:
                 expected_tot = round(qty * price, 2)
-                if abs(expected_tot - tot) > 0.05 and tax_amt is None:
+                if abs(expected_tot - tot) > 0.05 and tax_amt is None and taxable_amt is None:
                     warnings.append(
                         f"Line item {idx + 1} ('{desc[:20]}'): Qty ({qty}) * Price ({price:.2f}) "
                         f"= {expected_tot:.2f}, expected {tot:.2f}."
@@ -233,6 +241,7 @@ class InvoiceValidator:
                 "quantity": qty,
                 "unit_price": price,
                 "tax_rate": tax_rate,
+                "taxable_amount": taxable_amt,
                 "tax_amount": tax_amt,
                 "total": tot,
             })
