@@ -1,7 +1,8 @@
 """
 Postprocessing and Ensemble Merging Module.
 Combines CRF model predictions with candidate rules, merges line items,
-applies quality validation, and determines processing provenance.
+applies quality validation, executes multi-document segmentation, and
+determines processing provenance.
 """
 
 from typing import Dict, Any, List, Optional
@@ -12,16 +13,18 @@ from src.config import TARGET_FIELDS
 from src.ml_extractor import InvoiceCRFExtractor
 from src.candidate_extractor import CandidateExtractor, deduplicate_phrase, REJECT_PARTY_NAMES, INVALID_INV_NUMS
 from src.line_item_extractor import LineItemExtractor
+from src.document_segmenter import DocumentSegmenter
 from src.validator import InvoiceValidator
 
 
 class InvoiceProcessor:
-    """Master orchestrator combining ML inference, candidate extraction, table extraction, and validation."""
+    """Master orchestrator combining segmentation, ML inference, candidate rules, table extraction, and validation."""
 
     def __init__(self, crf_extractor: Optional[InvoiceCRFExtractor] = None):
         self.crf_extractor = crf_extractor or InvoiceCRFExtractor()
         self.candidate_extractor = CandidateExtractor()
         self.line_item_extractor = LineItemExtractor()
+        self.segmenter = DocumentSegmenter()
         self.validator = InvoiceValidator()
 
     def _sanitize_party(self, val: Any) -> Optional[str]:
@@ -29,12 +32,18 @@ class InvoiceProcessor:
             return None
         s = str(val).strip()
         s = re.sub(
-            r"(?i)^(?:supplier\s+invoice\s+details|supplier|bill\s+to|ship\s+to|billed\s+to|customer|buyer)\s*[:#\-]?\s*",
+            r"(?i)^(?:supplier\s+invoice\s+details|supplier|bill\s+to|ship\s+to|billed\s+to|customer\s+name|customer\s+details|customer|buyer|name|legal\s+entity\s+name|restaurant\s+name)\s*[:#\-]?\s*",
             "",
             s,
         ).strip()
         s = deduplicate_phrase(s)
         if s.upper() in REJECT_PARTY_NAMES or len(s) < 2:
+            return None
+        if re.match(r"^OD\d{10,}", s):
+            return None
+        if re.match(r"^[\d\s\-\(\)\+]+$", s):
+            return None
+        if self.candidate_extractor._is_address_line(s):
             return None
         return s
 
@@ -56,17 +65,105 @@ class InvoiceProcessor:
         tokens: List[Dict[str, Any]],
     ) -> Dict[str, Any]:
         """
-        Executes end-to-end extraction on document tokens and builds structured output.
+        Executes end-to-end extraction on document tokens supporting both single-document
+        and multi-document PDFs with automatic document boundary segmentation.
         """
         start_time = time.time()
         filename = document_dict.get("filename", "unknown")
         doc_type = document_dict.get("doc_type", "unknown")
         page_count = document_dict.get("page_count", 1)
 
+        # 1. Segment pages into distinct financial documents
+        segments = self.segmenter.segment_pages(tokens, page_count)
+
+        if len(segments) <= 1:
+            # Single document workflow
+            res = self._process_single_segment(
+                document_dict,
+                tokens,
+                {"segment_index": 1, "document_type": doc_type, "page_numbers": list(range(1, page_count + 1))},
+                start_time=start_time,
+            )
+            res["multiple_documents_detected"] = False
+            res["document_count"] = 1
+            res["documents"] = [
+                {
+                    "document_index": 1,
+                    "document_type": res["metadata"].get("document_type", "Invoice"),
+                    "page_numbers": list(range(1, page_count + 1)),
+                    "fields": res["fields"],
+                    "line_items": res["line_items"],
+                    "validation": res["validation"],
+                }
+            ]
+            return res
+        else:
+            # Multi-document PDF workflow (e.g. Flipkart, Amazon, Zomato bundles)
+            doc_records = []
+            for seg in segments:
+                seg_tokens = [t for t in tokens if t.get("page_num", 1) in seg["page_numbers"]]
+                seg_res = self._process_single_segment(
+                    document_dict, seg_tokens, seg, start_time=start_time
+                )
+                doc_records.append({
+                    "document_index": seg["segment_index"],
+                    "document_type": seg.get("document_type", "Invoice"),
+                    "page_numbers": seg["page_numbers"],
+                    "fields": seg_res["fields"],
+                    "line_items": seg_res["line_items"],
+                    "validation": seg_res["validation"],
+                })
+
+            # Select primary document (highest invoice total or first)
+            primary_idx = 0
+            max_tot = -1.0
+            for idx, d in enumerate(doc_records):
+                tot = d["fields"].get("total_amount")
+                if tot is not None and tot > max_tot:
+                    max_tot = tot
+                    primary_idx = idx
+
+            primary_doc = doc_records[primary_idx]
+            duration_ms = round((time.time() - start_time) * 1000, 2)
+            ocr_engine_used = "native_pdf" if doc_type == "digital_pdf" else "tesseract_ocr"
+
+            # Backward-compatible envelope with all documents preserved
+            result = {
+                "metadata": {
+                    "filename": filename,
+                    "document_type": doc_type,
+                    "page_count": page_count,
+                    "token_count": len(tokens),
+                    "ocr_engine": ocr_engine_used,
+                    "extraction_method": "multi_document_segmentation",
+                    "processing_time_ms": duration_ms,
+                    "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                },
+                "multiple_documents_detected": True,
+                "document_count": len(doc_records),
+                "primary_document_index": primary_doc["document_index"],
+                "fields": primary_doc["fields"],
+                "line_items": primary_doc["line_items"],
+                "validation": primary_doc["validation"],
+                "documents": doc_records,
+            }
+            return result
+
+    def _process_single_segment(
+        self,
+        document_dict: Dict[str, Any],
+        tokens: List[Dict[str, Any]],
+        seg_meta: Dict[str, Any],
+        start_time: Optional[float] = None,
+    ) -> Dict[str, Any]:
+        """Processes a single isolated document segment."""
+        t_start = start_time or time.time()
+        filename = document_dict.get("filename", "unknown")
+        doc_type = document_dict.get("doc_type", "unknown")
+        pages = seg_meta.get("page_numbers", [1])
+
         # Build full text and line strings for candidate extractor
         full_text = " ".join(t["clean_text"] for t in tokens)
-        
-        # Build lines of text
         token_lines = self.line_item_extractor._group_tokens_by_y(tokens)
         text_lines = [" ".join(tok["clean_text"] for tok in line) for line in token_lines]
 
@@ -77,16 +174,15 @@ class InvoiceProcessor:
 
         # 2. Traditional ML CRF Extraction
         crf_fields = {}
-        enriched_tokens = tokens
         extraction_method = "rule_based_fallback"
         model_trained = self.crf_extractor.is_trained()
 
         if model_trained and tokens:
             try:
-                crf_fields, enriched_tokens = self.crf_extractor.extract_fields(tokens)
+                crf_fields, _ = self.crf_extractor.extract_fields(tokens)
                 if crf_fields:
                     extraction_method = "crf_ml"
-            except Exception as e:
+            except Exception:
                 crf_fields = {}
 
         # 3. Hybrid Merge (Complementary rules for fields CRF missed or where CRF predicted noise)
@@ -110,19 +206,17 @@ class InvoiceProcessor:
             elif field == "invoice_number":
                 c_inv = self._sanitize_inv_num(crf_val)
                 r_inv = self._sanitize_inv_num(rule_val)
-                if c_inv is not None:
-                    final_fields[field] = c_inv
-                elif r_inv is not None:
+                if r_inv is not None:
                     final_fields[field] = r_inv
+                elif c_inv is not None:
+                    final_fields[field] = c_inv
                 else:
                     final_fields[field] = None
             elif field == "tax_id":
                 c_tax = str(crf_val).strip() if crf_val is not None else ""
                 r_tax = str(rule_val).strip() if rule_val is not None else ""
-                # Tax ID / GSTIN cannot contain @ (email) and should be alphanumeric
                 is_valid_c = bool(c_tax and "@" not in c_tax and re.match(r"^[A-Z0-9\-\/]{7,25}$", c_tax, re.I))
                 is_valid_r = bool(r_tax and "@" not in r_tax and re.match(r"^[A-Z0-9\-\/]{7,25}$", r_tax, re.I))
-                # Prefer GSTIN if available
                 if is_valid_r and re.match(r"^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$", r_tax):
                     final_fields[field] = r_tax
                 elif is_valid_c and re.match(r"^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$", c_tax):
@@ -136,7 +230,6 @@ class InvoiceProcessor:
             elif field == "purchase_order_number":
                 c_po = str(crf_val).strip() if crf_val is not None else ""
                 r_po = str(rule_val).strip() if rule_val is not None else ""
-                # PO cannot be a date format
                 is_date_c = bool(re.match(r"^\d{1,4}[-/\.]\d{1,2}[-/\.]\d{2,4}$", c_po))
                 is_date_r = bool(re.match(r"^\d{1,4}[-/\.]\d{1,2}[-/\.]\d{2,4}$", r_po))
                 is_valid_c = bool(c_po and not is_date_c and len(c_po) >= 3 and not c_po.lower().startswith(("inv", "tax", "date", "bill")))
@@ -148,7 +241,6 @@ class InvoiceProcessor:
                 else:
                     final_fields[field] = None
             elif field in ("subtotal", "tax_amount", "total_amount"):
-                # Numeric fields: reject huge numbers (>10^7) or non-numeric
                 def _to_float(v):
                     if v is None:
                         return None
@@ -183,21 +275,19 @@ class InvoiceProcessor:
         # 5. Validation and Quality Assurance
         val_result = self.validator.validate(final_fields, extracted_line_items)
 
-        # Disclose fallback mode if model wasn't available
         if not model_trained:
             val_result["warnings"].insert(
                 0, "CRF model is not trained or loaded. Extraction completed using rule-based candidate fallback."
             )
 
-        duration_ms = round((time.time() - start_time) * 1000, 2)
-
+        duration_ms = round((time.time() - t_start) * 1000, 2)
         ocr_engine_used = "native_pdf" if doc_type == "digital_pdf" else "tesseract_ocr"
 
-        result = {
+        return {
             "metadata": {
                 "filename": filename,
-                "document_type": doc_type,
-                "page_count": page_count,
+                "document_type": seg_meta.get("document_type", doc_type),
+                "pages": pages,
                 "token_count": len(tokens),
                 "ocr_engine": ocr_engine_used,
                 "extraction_method": extraction_method,
@@ -212,5 +302,3 @@ class InvoiceProcessor:
                 "warnings": val_result["warnings"],
             },
         }
-
-        return result

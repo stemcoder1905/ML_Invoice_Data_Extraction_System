@@ -15,26 +15,29 @@ class LineItemExtractor:
     def __init__(self):
         # Column header keywords
         self.col_keywords = {
-            "sr_no": ["sr", "sl", "s.no", "sr no", "sl no", "s no", "item no", "no"],
-            "description": ["description", "item", "particulars", "product", "details", "service", "desc", "title"],
+            "sr_no": ["sr", "sl", "s.no", "sr no", "sl no", "s no", "sl.", "item no", "no"],
+            "description": ["description", "item", "particulars", "product", "details", "service", "desc", "title", "product title"],
             "mrp": ["mrp", "rsp", "mrp/rsp", "unit mrp"],
-            "hsn": ["hsn", "sac", "hsn/sac"],
+            "hsn": ["hsn", "sac", "hsn/sac", "hsn code"],
             "quantity": ["qty", "quantity", "qnty", "units", "count", "hrs", "hours"],
-            "unit_price": ["rate", "product rate", "price", "unit price", "unit_price", "unit cost", "cost"],
-            "discount": ["disc", "discount", "disc."],
-            "taxable_amount": ["taxable", "taxable amt", "taxable value", "taxable amount", "assessable"],
-            "cgst_amt": ["cgst amt", "cgst amount"],
-            "sgst_amt": ["sgst amt", "sgst amount"],
+            "unit_price": ["unit price", "unit_price", "product rate", "rate", "price", "unit cost", "cost"],
+            "gross_amount": ["gross", "gross amount", "gross value"],
+            "discount": ["discount", "disc", "disc."],
+            "taxable_amount": ["taxable", "taxable amt", "taxable value", "taxable amount", "assessable", "net value", "net amount"],
+            "cgst_amt": ["cgst amt", "cgst (inr)", "cgst amount"],
+            "sgst_amt": ["sgst amt", "sgst (inr)", "sgst amount", "sgst/utgst", "utgst"],
+            "igst_amt": ["igst", "igst amt", "igst (inr)", "igst amount"],
             "tax": ["tax", "tax %", "tax rate", "gst", "vat", "cgst", "sgst", "igst", "cess"],
-            "total": ["amount", "total", "line total", "net amount", "total amt", "line total incl. tax", "total amount", "invoice value", "item total"],
+            "total": ["total amount", "total amt", "line total", "total value", "invoice value", "item total", "total"],
         }
         self.table_end_keywords = [
             "subtotal", "sub total", "sub-total", "taxable amount",
             "total tax", "grand total", "net amount", "total amount",
-            "item total", "invoice value", "terms & conditions",
-            "bank details", "signature", "authorized", "thank you",
-            "whether gst is payable", "order delivered from", "fssai",
-            "fbo", "amount in words",
+            "item total", "invoice value", "total value", "total:",
+            "amount in words", "details of goods transported", "gta supplier",
+            "terms & conditions", "bank details", "signature", "authorized", "thank you",
+            "whether tax is payable", "whether gst is payable", "order delivered from",
+            "fssai", "fbo",
         ]
         self.num_regex = re.compile(r"^\$?(\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?|\d+(?:\.\d{1,2})?)$")
 

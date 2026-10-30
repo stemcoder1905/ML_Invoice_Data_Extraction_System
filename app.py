@@ -203,7 +203,40 @@ if active_tab == "Single Invoice Extraction":
                     st.markdown("*No warnings detected.*")
 
         with col_right:
-            st.subheader("📝 Extracted Header Fields (Editable)")
+            is_multi = extraction_result.get("multiple_documents_detected", False)
+            if is_multi:
+                doc_count = extraction_result.get("document_count", len(extraction_result.get("documents", [])))
+                st.info(f"📑 **Multi-Document File Detected:** {doc_count} distinct documents identified and segmented.")
+
+            docs_list = extraction_result.get("documents", []) if is_multi else [{"document_index": 1, "document_type": "Invoice", "fields": extraction_result["fields"], "line_items": extraction_result.get("line_items", [])}]
+
+            if is_multi and len(docs_list) > 1:
+                tab_titles = [f"Doc {d.get('document_index', idx+1)}: {d.get('document_type', 'Invoice')} (p. {d.get('page_numbers', [idx+1])})" for idx, d in enumerate(docs_list)]
+                doc_tabs = st.tabs(tab_titles)
+                for tab_idx, d_item in enumerate(docs_list):
+                    with doc_tabs[tab_idx]:
+                        st.markdown(f"**Document Type:** `{d_item.get('document_type')}` | **Pages:** `{d_item.get('page_numbers')}`")
+                        d_fields = d_item.get("fields", {})
+                        df1, df2 = st.columns(2)
+                        with df1:
+                            st.text_input(f"Inv Number #{tab_idx}", value=str(d_fields.get("invoice_number") or ""), key=f"inv_no_{tab_idx}", disabled=True)
+                            st.text_input(f"Date #{tab_idx}", value=str(d_fields.get("invoice_date") or ""), key=f"inv_date_{tab_idx}", disabled=True)
+                            st.text_input(f"Supplier #{tab_idx}", value=str(d_fields.get("supplier_name") or ""), key=f"sup_{tab_idx}", disabled=True)
+                            st.text_input(f"Buyer #{tab_idx}", value=str(d_fields.get("buyer_name") or ""), key=f"buy_{tab_idx}", disabled=True)
+                        with df2:
+                            st.text_input(f"Subtotal #{tab_idx}", value=str(d_fields.get("subtotal") or ""), key=f"sub_{tab_idx}", disabled=True)
+                            st.text_input(f"Tax Amount #{tab_idx}", value=str(d_fields.get("tax_amount") or ""), key=f"tax_{tab_idx}", disabled=True)
+                            st.text_input(f"Total Amount #{tab_idx}", value=str(d_fields.get("total_amount") or ""), key=f"tot_{tab_idx}", disabled=True)
+                            st.text_input(f"GSTIN / Tax ID #{tab_idx}", value=str(d_fields.get("tax_id") or ""), key=f"taxid_{tab_idx}", disabled=True)
+
+                        d_items = d_item.get("line_items", [])
+                        if d_items:
+                            st.markdown(f"**Line Items ({len(d_items)}):**")
+                            st.dataframe(pd.DataFrame(d_items), use_container_width=True)
+                        else:
+                            st.caption("No tabular line items for this document segment.")
+
+            st.subheader("📝 Primary Extracted Header Fields (Editable)")
             st.markdown("<small>Review and manually correct extracted values before export:</small>", unsafe_allow_html=True)
 
             fields = extraction_result["fields"]
