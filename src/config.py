@@ -25,6 +25,8 @@ for directory in [DATA_DIR, INVOICES_DIR, ANNOTATIONS_DIR, SPLITS_DIR, MODELS_DI
 
 # Supported input file formats
 SUPPORTED_EXTENSIONS = {".pdf", ".png", ".jpg", ".jpeg"}
+ARCHIVE_EXTENSIONS = {".zip"}
+ALL_SUPPORTED_EXTENSIONS = SUPPORTED_EXTENSIONS.union(ARCHIVE_EXTENSIONS)
 
 # Key Target Fields
 TARGET_FIELDS = [

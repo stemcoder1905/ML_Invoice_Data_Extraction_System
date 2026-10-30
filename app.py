@@ -127,9 +127,9 @@ if active_tab == "Single Invoice Extraction":
     col_upload, col_sample = st.columns([3, 2])
     with col_upload:
         uploaded_file = st.file_uploader(
-            "Upload an invoice document",
-            type=["pdf", "png", "jpg", "jpeg"],
-            help="Supports digital PDFs, scanned PDFs, and raster images.",
+            "Upload an invoice document or ZIP archive",
+            type=["pdf", "png", "jpg", "jpeg", "zip"],
+            help="Supports digital PDFs, scanned PDFs, raster images, and ZIP archives containing invoices.",
         )
     with col_sample:
         st.write("**Or select a demonstration sample:**")
@@ -141,8 +141,25 @@ if active_tab == "Single Invoice Extraction":
     selected_name = "invoice"
 
     if uploaded_file is not None:
-        selected_bytes = uploaded_file.read()
-        selected_name = uploaded_file.name
+        if uploaded_file.name.lower().endswith(".zip"):
+            extracted_items = DocumentLoader.extract_zip(uploaded_file.read())
+            if not extracted_items:
+                st.error("The uploaded ZIP archive does not contain any supported invoice files (.pdf, .png, .jpg, .jpeg).")
+            else:
+                st.info(f"📦 Archive contains {len(extracted_items)} invoice(s).")
+                zip_choice = st.selectbox(
+                    "Select invoice from ZIP archive to extract:",
+                    [item[0] for item in extracted_items],
+                    index=0,
+                )
+                for item_name, item_bytes in extracted_items:
+                    if item_name == zip_choice:
+                        selected_name = item_name
+                        selected_bytes = item_bytes
+                        break
+        else:
+            selected_bytes = uploaded_file.read()
+            selected_name = uploaded_file.name
     elif selected_sample != "-- None --":
         sample_path = INVOICES_DIR / selected_sample
         selected_bytes = sample_path.read_bytes()
@@ -247,8 +264,8 @@ elif active_tab == "Batch Processing":
     st.markdown("Process multiple invoices concurrently with automated fault isolation and summary reporting.")
 
     uploaded_files = st.file_uploader(
-        "Upload multiple invoices (PDF / Images)",
-        type=["pdf", "png", "jpg", "jpeg"],
+        "Upload multiple invoices or ZIP archives (PDF, Images, ZIP)",
+        type=["pdf", "png", "jpg", "jpeg", "zip"],
         accept_multiple_files=True,
     )
 
@@ -256,7 +273,17 @@ elif active_tab == "Batch Processing":
 
     files_to_run = []
     if uploaded_files:
-        files_to_run = [(f.name, f.read()) for f in uploaded_files]
+        for f in uploaded_files:
+            if f.name.lower().endswith(".zip"):
+                extracted = DocumentLoader.extract_zip(f.read())
+                if extracted:
+                    st.info(f"📦 Extracted {len(extracted)} invoice(s) from ZIP archive: **{f.name}**")
+                    for sub_name, sub_bytes in extracted:
+                        files_to_run.append((sub_name, sub_bytes))
+                else:
+                    st.warning(f"⚠️ ZIP archive '{f.name}' contained no supported invoice files.")
+            else:
+                files_to_run.append((f.name, f.read()))
     elif run_sample_batch:
         demo_files = list(INVOICES_DIR.glob("*.pdf"))[:8]
         files_to_run = [(f.name, f.read_bytes()) for f in demo_files]

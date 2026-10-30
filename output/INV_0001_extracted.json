@@ -6,8 +6,8 @@
     "token_count": 86,
     "ocr_engine": "native_pdf",
     "extraction_method": "crf_ml",
-    "processing_time_ms": 9.94,
-    "timestamp": "2026-10-28T09:27:52Z"
+    "processing_time_ms": 31.67,
+    "timestamp": "2026-10-30T07:03:38Z"
   },
   "fields": {
     "invoice_number": "INV-2024-5507",

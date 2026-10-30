@@ -65,10 +65,10 @@ Each annotation file contains three principal keys:
 
 ## 3. BIO Tagging Scheme
 
-Tokens are labeled using the standard Beginning-Inside-Outside (**BIO**) scheme:
+Tokens are labeled using the standard Beginning-Inside-Outside (BIO) scheme.
 
 | Tag | Target Field | Description |
-| :--- | :--- | :--- |
+|---|---|---|
 | `B-INV_NUM`, `I-INV_NUM` | `invoice_number` | Invoice serial or reference number |
 | `B-INV_DATE`, `I-INV_DATE` | `invoice_date` | Document issue date |
 | `B-SUPPLIER`, `I-SUPPLIER` | `supplier_name` | Vendor / seller registered business name |
@@ -85,19 +85,46 @@ Tokens are labeled using the standard Beginning-Inside-Outside (**BIO**) scheme:
 
 ## 4. Multi-Token Entity Annotation Rules
 
-1. **Entity Boundaries**: The first token of an entity sequence **must** carry the `B-` prefix. All subsequent contiguous tokens belonging to the same entity take `I-`.
-   - *Example:* `Vertex` (`B-SUPPLIER`), `Global` (`I-SUPPLIER`), `Solutions` (`I-SUPPLIER`), `Ltd` (`I-SUPPLIER`).
-2. **Punctuation Trimming**: Punctuation delimiters (such as trailing colons or commas) attached to prompt keywords are tagged as `O`.
-   - *Example:* In `Invoice No: INV-100`, `Invoice` is `O`, `No:` is `O`, and `INV-100` is `B-INV_NUM`.
-3. **Compound Numeric Amounts**: Currency symbols attached directly to numeric strings are separated or tagged appropriately.
-   - *Example:* In `$1,250.00`, if segmented together, it is tagged `B-TOTAL`; if split, `$` is `B-CURRENCY` and `1,250.00` is `B-TOTAL`.
+### 1. Entity Boundaries
+
+The first token of an entity sequence must carry the `B-` prefix. All subsequent contiguous tokens belonging to the same entity take the `I-` prefix.
+
+**Example:**
+
+- `Vertex` — `B-SUPPLIER`
+- `Global` — `I-SUPPLIER`
+- `Solutions` — `I-SUPPLIER`
+- `Ltd` — `I-SUPPLIER`
+
+### 2. Punctuation Trimming
+
+Punctuation delimiters, such as trailing colons or commas attached to prompt keywords, are tagged as `O`.
+
+**Example:**
+
+In `Invoice No: INV-100`:
+
+- `Invoice` — `O`
+- `No:` — `O`
+- `INV-100` — `B-INV_NUM`
+
+### 3. Compound Numeric Amounts
+
+Currency symbols attached directly to numeric strings are separated or tagged appropriately.
+
+**Example:**
+
+In `$1,250.00`:
+
+- If segmented together, the entire string is tagged as `B-TOTAL`.
+- If split, `$` is tagged as `B-CURRENCY` and `1,250.00` is tagged as `B-TOTAL`.
 
 ---
 
 ## 5. Document-Level Splitting Rules (Strict Zero-Leakage)
 
-- **NEVER** randomly partition token lists across splits.
-- Splitting is performed exclusively at the **Document Level**:
+- **Never** randomly partition token lists across splits.
+- Splitting is performed exclusively at the **document level**:
   - `data/splits/train_docs.json`: Invoices allocated exclusively to model training.
   - `data/splits/test_docs.json`: Invoices reserved strictly for held-out evaluation.
 - No invoice ID in the test set may appear in the training split.

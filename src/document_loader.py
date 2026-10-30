@@ -5,14 +5,15 @@ Renders pages, extracts native PDF text when available, and prepares pages for O
 """
 
 from pathlib import Path
-from typing import List, Dict, Any, Union, BinaryIO
+from typing import List, Dict, Any, Union, BinaryIO, Tuple
 import numpy as np
 import cv2
 import pymupdf as fitz  # PyMuPDF
 from PIL import Image
 import io
+import zipfile
 
-from src.config import SUPPORTED_EXTENSIONS
+from src.config import SUPPORTED_EXTENSIONS, ALL_SUPPORTED_EXTENSIONS
 
 
 class DocumentLoader:
@@ -21,9 +22,47 @@ class DocumentLoader:
     def __init__(self, render_dpi: int = 300):
         self.render_dpi = render_dpi
 
+    @staticmethod
+    def extract_zip(source: Union[str, Path, bytes, BinaryIO]) -> List[Tuple[str, bytes]]:
+        """
+        Extracts supported invoice files (.pdf, .png, .jpg, .jpeg) from a ZIP archive.
+        Returns a list of (filename, file_bytes).
+        """
+        data: bytes
+        if isinstance(source, (str, Path)):
+            p = Path(source)
+            if not p.exists():
+                raise FileNotFoundError(f"ZIP file not found: {source}")
+            with open(p, "rb") as f:
+                data = f.read()
+        elif isinstance(source, (bytes, bytearray)):
+            data = bytes(source)
+        elif hasattr(source, "read"):
+            data = source.read()
+        else:
+            raise ValueError(f"Unsupported source type for ZIP extraction: {type(source)}")
+
+        extracted_files: List[Tuple[str, bytes]] = []
+        with zipfile.ZipFile(io.BytesIO(data), "r") as zf:
+            for member in zf.infolist():
+                if member.is_dir():
+                    continue
+                name = member.filename
+                # Skip macOS metadata or hidden files
+                if "__MACOSX" in name or Path(name).name.startswith("."):
+                    continue
+                ext = Path(name).suffix.lower()
+                if ext in SUPPORTED_EXTENSIONS:
+                    file_bytes = zf.read(member.filename)
+                    clean_name = Path(name).name
+                    extracted_files.append((clean_name, file_bytes))
+
+        return extracted_files
+
     def load(self, source: Union[str, Path, bytes, BinaryIO], filename: str = "document") -> Dict[str, Any]:
         """
         Loads a document from file path, raw bytes, or stream.
+        Supports PDF, PNG, JPG, JPEG, and extracts the primary invoice if a ZIP archive is provided.
         Returns a document dictionary with metadata and extracted page objects.
         """
         ext = ""
@@ -46,8 +85,19 @@ class DocumentLoader:
         else:
             raise ValueError(f"Unsupported source type: {type(source)}")
 
+        # Handle ZIP archive input directly
+        if ext == ".zip" or (data_bytes and data_bytes.startswith(b"PK\x03\x04")):
+            extracted = self.extract_zip(data_bytes)
+            if not extracted:
+                raise ValueError(f"ZIP archive '{filename}' contains no supported invoice files ({SUPPORTED_EXTENSIONS}).")
+            primary_name, primary_bytes = extracted[0]
+            loaded_doc = self.load(primary_bytes, filename=primary_name)
+            loaded_doc["zip_archive"] = filename
+            loaded_doc["zip_total_invoices"] = len(extracted)
+            return loaded_doc
+
         if ext not in SUPPORTED_EXTENSIONS and ext != "":
-            raise ValueError(f"Unsupported file format '{ext}'. Supported formats: {SUPPORTED_EXTENSIONS}")
+            raise ValueError(f"Unsupported file format '{ext}'. Supported formats: {ALL_SUPPORTED_EXTENSIONS}")
 
         # Distinguish between PDF and image
         if ext == ".pdf" or data_bytes.startswith(b"%PDF"):
