@@ -6,13 +6,13 @@
     "token_count": 88,
     "ocr_engine": "native_pdf",
     "extraction_method": "crf_ml",
-    "processing_time_ms": 9.94,
-    "timestamp": "2026-10-28T09:27:54Z"
+    "processing_time_ms": 10.99,
+    "timestamp": "2026-10-30T14:41:17Z"
   },
   "fields": {
     "invoice_number": "INV-2024-7544",
     "invoice_date": "2024-04-12",
-    "supplier_name": "Quantum Precision Hardware Pvt",
+    "supplier_name": "Quantum Precision Hardware Pvt Ltd",
     "buyer_name": "Global Trade Logistics Inc",
     "purchase_order_number": "GTL-241",
     "currency": "INR",

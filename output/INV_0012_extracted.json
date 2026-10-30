@@ -6,13 +6,13 @@
     "token_count": 70,
     "ocr_engine": "native_pdf",
     "extraction_method": "crf_ml",
-    "processing_time_ms": 7.22,
-    "timestamp": "2026-10-28T09:27:55Z"
+    "processing_time_ms": 8.26,
+    "timestamp": "2026-10-30T14:41:19Z"
   },
   "fields": {
     "invoice_number": "INV-2024-9836",
     "invoice_date": "2024-12-25",
-    "supplier_name": "Quantum Precision Hardware Pvt",
+    "supplier_name": "Quantum Precision Hardware Pvt Ltd",
     "buyer_name": "BlueStar Enterprise Solutions",
     "purchase_order_number": "ORD-88-806",
     "currency": "INR",

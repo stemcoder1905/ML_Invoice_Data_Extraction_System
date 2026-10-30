@@ -88,3 +88,31 @@ def test_math_reconciliation_missing_tax_amount():
     assert res["cleaned_fields"]["subtotal"] == 769.92
     assert res["cleaned_fields"]["total_amount"] == 831.51
 
+
+def test_validator_detects_missing_tax_and_invalid_fields():
+    """Verifies that validator rejects invoices with missing required fields or missing tax."""
+    val = InvoiceValidator()
+
+    # Missing mandatory field
+    res = val.validate({
+        "invoice_number": None,
+        "invoice_date": "2026-10-20",
+        "supplier_name": "Test Supplier",
+        "total_amount": 100.00,
+    }, [])
+    assert res["is_valid"] is False
+    assert any("invoice_number" in err.lower() for err in res["errors"])
+
+    # Discrepant math: subtotal + tax != total
+    res_math = val.validate({
+        "invoice_number": "INV-1",
+        "invoice_date": "2026-10-20",
+        "supplier_name": "Test",
+        "subtotal": 100.00,
+        "tax_amount": 18.00,
+        "total_amount": 200.00,
+    }, [])
+    assert res_math["is_valid"] is False
+    assert any("mathematical" in err.lower() for err in res_math["errors"])
+
+

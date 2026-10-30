@@ -133,8 +133,8 @@ if active_tab == "Single Invoice Extraction":
         )
     with col_sample:
         st.write("**Or select a demonstration sample:**")
-        sample_files = list(INVOICES_DIR.glob("*.pdf")) + list(INVOICES_DIR.glob("*.png"))
-        sample_names = ["-- None --"] + [f.name for f in sample_files[:10]]
+        sample_files = sorted(list(INVOICES_DIR.glob("*.pdf")) + list(INVOICES_DIR.glob("*.png")), key=lambda p: p.name)
+        sample_names = ["-- None --"] + [f.name for f in sample_files]
         selected_sample = st.selectbox("Sample Invoices", sample_names)
 
     selected_bytes = None

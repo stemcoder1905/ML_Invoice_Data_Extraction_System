@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "evaluation_timestamp": "2026-10-30T16:27:17.954396",
+    "evaluation_timestamp": "2026-10-30T20:13:08.639397",
     "train_split_file": "D:\\OCR_project\\data\\splits\\train_docs.json",
     "test_split_file": "D:\\OCR_project\\data\\splits\\test_docs.json",
     "evaluated_documents_count": 8,

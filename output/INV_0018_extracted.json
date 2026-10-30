@@ -5,9 +5,9 @@
     "page_count": 1,
     "token_count": 70,
     "ocr_engine": "native_pdf",
-    "extraction_method": "hybrid_crf_rules",
-    "processing_time_ms": 11.15,
-    "timestamp": "2026-10-28T09:27:58Z"
+    "extraction_method": "crf_ml",
+    "processing_time_ms": 7.29,
+    "timestamp": "2026-10-30T14:41:21Z"
   },
   "fields": {
     "invoice_number": "INV-2024-9884",
